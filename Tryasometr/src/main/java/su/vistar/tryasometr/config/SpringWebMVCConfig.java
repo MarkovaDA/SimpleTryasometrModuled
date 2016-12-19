@@ -13,7 +13,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan({"com.mycompany.task.controller"})
+@ComponentScan({"su.vistar.tryasometr.controller"})
 public class SpringWebMVCConfig extends WebMvcConfigurerAdapter {
     
     @Bean
