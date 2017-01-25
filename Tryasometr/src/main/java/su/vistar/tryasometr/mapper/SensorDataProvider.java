@@ -4,7 +4,6 @@ import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
 import java.util.List;
 import java.util.Map;
-import org.apache.ibatis.jdbc.SQL;
 
 
 

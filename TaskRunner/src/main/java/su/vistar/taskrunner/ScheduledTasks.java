@@ -37,23 +37,26 @@ public class ScheduledTasks {
         List<AverageAcceleration> averagedList; 
         do{
             oneHundred = sensorDataMapper.getLastLocation(from, COUNT);//запрос должен быть с удалением
-            //подумать о повторяющихся значениях в списке
-            //прорядить сильнее
             for(int j=0; j< oneHundred.size()-1; j+=1){
                 locStart = oneHundred.get(j);
-                locEnd = oneHundred.get(j + 1);
-                
+                locEnd = oneHundred.get(j + 1);               
                 if (locStart.getDateTime().equals(locEnd.getDateTime()))
                     continue;
                 //усредненные ускорения на отрезке [locStart,locEnd]
                 averagedList = sensorDataMapper.averageForLine(locStart.getDateTime(), locEnd.getDateTime());
                 System.out.println(averagedList.size());
-                //сохранение (тут и проставим точки)
-                //if (!averagedList.isEmpty()) //это никогда не происходит, разобраться почему
-                //sensorDataMapper.insertAveragedAccelerations(averagedList, locStart, locEnd);
+                if (!averagedList.isEmpty()) 
+                    sensorDataMapper.insertAveragedAccelerations(averagedList, locStart, locEnd);
             }
             from += COUNT;
         }
         while(!oneHundred.isEmpty());       
+    }
+    //это тоже будет выполняться в отдельном потоке с определенной переодичностью
+    private void calculateKoeffForSections(){
+        //алгоритм таков: беру отрезок (две точки)
+        //нахожу секцию,к которой принадлжет каждая из точек,если номера секций совпадают, то значит - 
+        //точка действительно принадлжеит секции
+        //принадлежность точки в секции проверяется путем подстановки в уравнение прямой секции и сверка равенства
     }
 }
