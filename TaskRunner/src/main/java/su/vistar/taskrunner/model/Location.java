@@ -1,8 +1,7 @@
-
 package su.vistar.taskrunner.model;
 
-
 public class Location {
+
     private Long id;
     private Double lon;
     private Double lat;
@@ -48,5 +47,5 @@ public class Location {
     public void setDataTime(String dateTime) {
         this.dateTime = dateTime;
     }
-    
+
 }

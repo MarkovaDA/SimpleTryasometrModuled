@@ -16,47 +16,42 @@ import su.vistar.taskrunner.model.Location;
 
 @Component
 public class ScheduledTasks {
+
     //http://www.cronmaker.com/
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final  int COUNT = 100;//порция обрабатываемых за раз данных
-    
+    private static final int COUNT = 100;//порция обрабатываемых за раз данных
+
     @Autowired
-    private  SensorDataMapper sensorDataMapper;
-    
-    @Scheduled(/*fixedRate = 5000*/cron="0 0/1 * 1/1 * ?") //раз в 10 минут
+    private SensorDataMapper sensorDataMapper;
+
+    @Scheduled(/*fixedRate = 5000*/cron = "0 0/1 * 1/1 * ?") //раз в  минуту
     public void reportCurrentTime() {
         calculateAverageAccelerations();
         log.info("TIME IS NOW {}", dateFormat.format(new Date()));
     }
-    //в отдельном потоке выполняется обработка таблицы average_accelerations
-    private void calculateAverageAccelerations(){
+
+    private void calculateAverageAccelerations() {
         int from = 0;
         List<Location> oneHundred = new ArrayList<>();
         Location locStart, locEnd; //начало и конец очередного отрезка
-        List<AverageAcceleration> averagedList; 
-        do{
-            oneHundred = sensorDataMapper.getLastLocation(from, COUNT);//запрос должен быть с удалением
-            for(int j=0; j< oneHundred.size()-1; j+=1){
+        List<AverageAcceleration> averagedList;
+        do {
+            oneHundred = sensorDataMapper.getLastLocation(from, COUNT);
+            //sensorDataMapper.deleteAllLocations(from, COUNT);
+            //если данные будут удаляться,то нам не нужен параметр from
+            for (int j = 0; j < oneHundred.size() - 1; j += 1) {
                 locStart = oneHundred.get(j);
-                locEnd = oneHundred.get(j + 1);               
-                if (locStart.getDateTime().equals(locEnd.getDateTime()))
-                    continue;
+                locEnd = oneHundred.get(j + 1);
                 //усредненные ускорения на отрезке [locStart,locEnd]
                 averagedList = sensorDataMapper.averageForLine(locStart.getDateTime(), locEnd.getDateTime());
                 System.out.println(averagedList.size());
-                if (!averagedList.isEmpty()) 
+                if (!averagedList.isEmpty()) {
                     sensorDataMapper.insertAveragedAccelerations(averagedList, locStart, locEnd);
+                }
             }
             from += COUNT;
-        }
-        while(!oneHundred.isEmpty());       
+        } while (!oneHundred.isEmpty());
     }
-    //это тоже будет выполняться в отдельном потоке с определенной переодичностью
-    private void calculateKoeffForSections(){
-        //алгоритм таков: беру отрезок (две точки)
-        //нахожу секцию,к которой принадлжет каждая из точек,если номера секций совпадают, то значит - 
-        //точка действительно принадлжеит секции
-        //принадлежность точки в секции проверяется путем подстановки в уравнение прямой секции и сверка равенства
-    }
+    //либо свои отрезки изображать,либо соотносить их с секциями
 }

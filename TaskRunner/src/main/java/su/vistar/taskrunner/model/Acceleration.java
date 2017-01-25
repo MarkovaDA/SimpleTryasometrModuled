@@ -1,15 +1,13 @@
 package su.vistar.taskrunner.model;
 
-
-
 public class Acceleration {
+
     private Float accelX;
     private Float accelY;
     private Float accelZ;
     private String deviceImei;
     private String dataTime;
 
-   
     public Float getAccelX() {
         return accelX;
     }
@@ -48,5 +46,5 @@ public class Acceleration {
 
     public void setDataTime(String dataTime) {
         this.dataTime = dataTime;
-    } 
+    }
 }

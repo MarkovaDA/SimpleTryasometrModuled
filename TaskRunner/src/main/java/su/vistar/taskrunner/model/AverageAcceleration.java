@@ -1,8 +1,7 @@
-
 package su.vistar.taskrunner.model;
 
-
 public class AverageAcceleration {
+
     private float accelX;
     private float accelY;
     private float accelZ;
@@ -17,6 +16,7 @@ public class AverageAcceleration {
     public void setDeviceImei(String deviceImei) {
         this.deviceImei = deviceImei;
     }
+
     public float getAccelX() {
         return accelX;
     }
@@ -56,6 +56,4 @@ public class AverageAcceleration {
     public void setLocEnd(Location locEnd) {
         this.locEnd = locEnd;
     }
-    
-    
 }
