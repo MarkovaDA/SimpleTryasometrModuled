@@ -30,14 +30,7 @@ public class ApiController {
         ModelAndView model = new ModelAndView("index");
         return model;
     }
-    //Берём точки отрезка
-    //первая, вторая
-    //берём максимальную и минимальную широты из этих точек:maxLat и minLat
-    //То же самое - для долготы:minLon, maxLon
-    //Координаты проверяемой точки - lat, lon
-    //Если ((lat > minLat) && (lat < maxLat) && ( lon>minLon) && ( lon < maxLon)), 
-    //то точка принадлежит отрезку секции, иначе не принадлежит
-
+  
     @PostMapping(value = "/save_location/")
     @ResponseBody
     public ResponseEntity saveLocations(@RequestBody List<Location> list) {

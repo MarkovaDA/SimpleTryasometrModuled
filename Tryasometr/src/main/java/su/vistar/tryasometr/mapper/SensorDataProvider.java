@@ -56,7 +56,7 @@ public class SensorDataProvider {
                 .append(comma)
         );
         query.deleteCharAt(query.length() - 1);
-        String str = query.toString();
+        //String str = query.toString();
         return query.toString();
     }
 }
