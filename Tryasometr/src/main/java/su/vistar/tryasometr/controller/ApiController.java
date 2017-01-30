@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import su.vistar.tryasometr.model.Section;
 
 
 @Controller
@@ -48,9 +49,10 @@ public class ApiController {
         entity.setStatus("OK");
         return entity;
     }
-    @GetMapping(value="/test")
+
+    @GetMapping(value="/get_sections")
     @ResponseBody
-    public String test(){
-        return "test string returned";
+    public List<Section> getSections(){
+        return sensorMapper.selectAllSections();
     }
 }
