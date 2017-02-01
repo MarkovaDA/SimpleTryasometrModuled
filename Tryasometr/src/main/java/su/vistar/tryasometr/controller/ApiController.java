@@ -1,6 +1,5 @@
 package su.vistar.tryasometr.controller;
 
-
 import su.vistar.tryasometr.mapper.SensorDataMapper;
 import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
@@ -16,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import su.vistar.tryasometr.model.MapBounds;
 import su.vistar.tryasometr.model.Section;
-
 
 @Controller
 public class ApiController {
@@ -31,7 +30,7 @@ public class ApiController {
         ModelAndView model = new ModelAndView("index");
         return model;
     }
-  
+
     @PostMapping(value = "/save_location/")
     @ResponseBody
     public ResponseEntity saveLocations(@RequestBody List<Location> list) {
@@ -50,9 +49,26 @@ public class ApiController {
         return entity;
     }
 
-    @GetMapping(value="/get_sections")
+    @PostMapping(value = "/bounds_change")
     @ResponseBody
-    public List<Section> getSections(){
+    public List<Section> getSectionsOnBoundsChange(@RequestBody MapBounds mapBounds) {
+        ResponseEntity entity = new ResponseEntity();
+        //сформировать ограничительный прямоугольник
+        double minLat = Math.min(mapBounds.getBottomCorner()[0], mapBounds.getTopCorner()[0]);
+        double maxLat = (minLat == mapBounds.getBottomCorner()[0])
+                ? mapBounds.getTopCorner()[0] 
+                : mapBounds.getBottomCorner()[0];
+        double minLon = Math.min(mapBounds.getBottomCorner()[1], mapBounds.getTopCorner()[1]);
+        double maxLon = (minLon == mapBounds.getBottomCorner()[1])
+                ? mapBounds.getTopCorner()[1] 
+                : mapBounds.getBottomCorner()[1];
+        //получаем все секции внутри ограничивающего прямоугольника
+        return sensorMapper.selectSectionsByMapBounds(minLat, minLon, maxLat, maxLon);
+    }
+
+    @GetMapping(value = "/get_sections")
+    @ResponseBody
+    public List<Section> getSections() {
         return sensorMapper.selectAllSections();
     }
 }

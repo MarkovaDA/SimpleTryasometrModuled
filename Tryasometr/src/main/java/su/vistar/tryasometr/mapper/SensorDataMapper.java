@@ -37,5 +37,11 @@ public interface SensorDataMapper {
     @Insert("insert into tryasometr_v2.sections_params (k1,k2,m1,m2,section_id) values (#{k1},#{k2},#{m1},#{m2},#{section_id})")
     void insertSectionParamTwo(@Param("k1")Double k1, @Param("k2")Double k2,  @Param("m1")Double m1, @Param("m2")Double m2, @Param("section_id")Integer section_id);
     
-    
+    @Select("select * from tryasometr_v2.sections where lat1 between #{minLat} and #{maxLat} and "
+            + "lon1 between #{minLon} and #{maxLon} and "
+            + "lat4 between #{minLat} and #{maxLat} and "
+            + "lon4 between #{minLon} and #{maxLon}")
+    List<Section> selectSectionsByMapBounds(@Param("minLat")Double minLat, @Param("minLon")Double minLon,
+                                            @Param("maxLat")Double maxLat, @Param("maxLon")Double maxLon);
+    //проверить  - если одна из точек принадлежит отрезку, то секцию берем
 }

@@ -67,7 +67,8 @@
     <modules>
         <module>Tryasometr</module>
         <module>TaskRunner</module>
-    </modules>
+    <module>task</module>
+  </modules>
 
     <properties>
         <netbeans.version>RELEASE82</netbeans.version>
