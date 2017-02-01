@@ -22,7 +22,7 @@
                     'success': function (sections) {
                         myMap = new ymaps.Map("map", {
                             center: [51.67, 39.18],
-                            zoom: 12
+                            zoom: 16
                         });
                         HintLayout = ymaps.templateLayoutFactory.createClass("<div class='my-hint'>" +
                                 "<b>{{ properties.object }}</b><br />" +
@@ -61,42 +61,54 @@
                                 'data': JSON.stringify(bounds),
                                 'dataType': 'json',
                                 'success': function (sections) {
-                                    console.log(sections.length);                              
-                                    /*var sectionId;
+                                    console.log(sections.length);
+                                    //детектируем новые точки
+                                    var sectionId;
                                     var deletedObjects = new Array();
-                                    myMap.geoObjects.each(function (geoObject) {
+                                    var lastSectionIndex; //индекс последней удаленной секции
+                                    myMap.geoObjects.each(function (geoObject,index) {
                                         if (geoObject.geometry.getType() !== 'Circle'){
                                             sectionId = parseInt(geoObject.properties.get('sectionId'));         
                                             var includedSection = sections.find(item => item['seсtionID'] === sectionId);
                                             if (typeof includedSection !== "undefined"){
                                                 //объект присутсвует в новой выборке, удалим из нее,
-                                                //чтобы не рисовать повторно
+                                                //чтобы не рисовать повторно                                                
                                                 var number = sections.indexOf(includedSection);
                                                 sections.splice(number,1);
                                             }
                                             else {
                                                 deletedObjects.push(geoObject);
+                                                lastSectionIndex = index;
                                                 //также удалить и кругляки
                                             }                                    
                                         }
+                                        else if (geoObject.geometry.getType() === 'Circle'){
+                                            //выпиливаем точки по краям
+                                            if (index === lastSectionIndex + 1){
+                                                deletedObjects.push(geoObject);
+                                            }
+                                            if (index === lastSectionIndex + 2){
+                                                deletedObjects.push(geoObject);
+                                            }
+                                            if (index === lastSectionIndex + 3){
+                                                deletedObjects.push(geoObject);
+                                            }
+                                            if (index === lastSectionIndex + 4){
+                                                deletedObjects.push(geoObject);
+                                            }   
+                                        }
                                     });
                                     for(var i=0; i < deletedObjects.length; i++){
-                                        myMap.geoObjects.remove(deletedObjects[i]);
-                                    }*/
-                                    myMap.geoObjects.removeAll(); 
+                                        myMap.geoObjects.remove(deletedObjects[i]);                                
+                                    }
+                                    //конец детектирования новых точек
+                                    //myMap.geoObjects.removeAll(); 
                                     drawSections(sections, myMap);
                                 }
                             });
                         });
                         //привязка событий
                         myMap.geoObjects.events.add('mouseenter', function (e) {
-                            //привязка событий
-                            /*var object = e.get('target');
-                             var index = getRandom(0,7);
-                             object.properties.set('address', labels[index]);
-                             object.options.set('fillColor', '#b3b3b3');
-                             object.options.set('strokeColor','#808080');
-                             object.options.set('strokeWidth', 5);*/
                         })
                         .add('mouseleave', function (e) {
                         });
@@ -108,7 +120,6 @@
             }
             //отображение секций на карте
             function drawSections(sections, myMap) {
-                //попробовать рисовать не по одной, а сразу всю коллекцию
                 for (var i = 0, l = sections.length; i < l; i++) {
                     var coords = new Array(); //координаты текущей секции
                     coords.push([sections[i].lat1, sections[i].lon1]);
