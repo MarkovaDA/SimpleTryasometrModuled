@@ -143,7 +143,7 @@
                         var myCircle = new ymaps.Circle([coords[j], 15], {},
                                 {
                                     fillColor: "#FFFFFF",
-                                    strokeWidth: 4,
+                                    strokeWidth: 3,
                                     strokeColor: '#ff0000'
                                 });
                         myMap.geoObjects.add(myCircle);

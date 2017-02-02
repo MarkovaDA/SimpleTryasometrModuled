@@ -25,7 +25,7 @@ public interface SensorDataMapper {
     @Insert("insert into tryasometr_v2.current_accelerations values(#{accelX},#{accelY},#{accelZ},#{deviceImei},#{dataTime})")
     void insertAcceleration(Acceleration acceleration);
     
-    @Select("select * from tryasometr_v2.sections limit 10")
+    @Select("select * from tryasometr_v2.sections")
     List<Section> selectAllSections();
     
     @Insert("insert into tryasometr_v2.sections_params (k1,k2,k3,m1,m2,m3,section_id) values (#{k1},#{k2},#{k3},#{m1},#{m2},#{m3},#{section_id})")
