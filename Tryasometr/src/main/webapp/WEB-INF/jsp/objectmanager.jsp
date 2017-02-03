@@ -12,6 +12,23 @@
             body{
                 font-family: Arial;
             }
+            .my-hint {
+                display: inline-block;
+                padding: 5px;
+                height: 35px;
+                position: relative;
+                left: -10px;
+                width: 195px;
+                font-size: 11px;
+                line-height: 17px;
+                color: #333333;
+                text-align: center;
+                vertical-align: middle;
+                background-color: #faefb6;
+                border: 1px solid #CDB7B5;
+                border-radius: 20px;
+                font-family: Arial;
+            }
         </style>
     </head>
     <body>
