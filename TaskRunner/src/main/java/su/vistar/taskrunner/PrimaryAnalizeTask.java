@@ -14,7 +14,7 @@ import su.vistar.taskrunner.model.Location;
 
 @Component
 public class PrimaryAnalizeTask {
-
+    //task первичного анализа данных: анализ ускорения по отрезкам
     //http://www.cronmaker.com/
     private static final Logger log = LoggerFactory.getLogger(PrimaryAnalizeTask.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -27,7 +27,7 @@ public class PrimaryAnalizeTask {
     public void run() {
         calculateAverageAccelerations();
     }
-
+    
     private void calculateAverageAccelerations() {
         List<Location> oneHundred = new ArrayList<>();
         Location locStart, locEnd; //начало и конец очередного отрезка
@@ -35,7 +35,6 @@ public class PrimaryAnalizeTask {
         do {
             oneHundred = sensorDataMapper.getLastLocation(COUNT);
             //sensorDataMapper.deleteLocations(COUNT);
-            //как удалить ускорения?
             for (int j = 0; j < oneHundred.size() - 1; j += 1) {
                 locStart = oneHundred.get(j);
                 locEnd = oneHundred.get(j + 1);

@@ -25,8 +25,9 @@ ymaps.ready(function () {
                 return result;
             }
     });
-
-    $.getJSON('object_manager/get_features')
+    
+    //пока что функцию получения данных отключим
+    /*$.getJSON('object_manager/get_features')
         .done(function (geoJson) {
             console.log("geoJson is ready");
             geoJson.features.filter(function(feature){
@@ -39,8 +40,40 @@ ymaps.ready(function () {
                 hintLayout: HintLayout
             });
             map.geoObjects.add(objectManager);
-        });
-
+    });*/
+    //сделать кнопку - показать все секции
+    var from, to, relocatedFrom = false;
+    
+    map.events.add('click', function(e){
+        var coords = e.get('coords');
+        if (from && to){
+            if (!relocatedFrom){
+                from.geometry.setCoordinates(coords);
+                relocatedFrom = true;
+            }
+            else {
+                to.geometry.setCoordinates(coords);
+                relocatedFrom = false;
+            }
+        }
+        if (!from){
+            from =  new ymaps.Placemark(coords, {
+                }, {
+                    preset: 'islands#icon',
+                    iconColor: '#f80000'
+                });
+            map.geoObjects.add(from);
+        }
+        else if (!to){
+            to =  new ymaps.Placemark(coords, {
+                }, {
+                    preset: 'islands#icon',
+                    iconColor: '#0095b6'
+                });
+            map.geoObjects.add(to);
+        }
+        
+    });
     objectManager.objects.events.add(['mouseenter', 'mouseleave'], onSectionHover);
     //приделать хинт еще с надписью
     function onSectionHover (e) {

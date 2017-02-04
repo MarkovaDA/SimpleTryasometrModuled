@@ -57,7 +57,6 @@ public class DataBySectionsTask {
                 parts[3] = new Point(currentSection.getLat4(), currentSection.getLon4());
                 double minLat, maxLat, minLon, maxLon;
                 for (int i = 0; i < PARTS - 1; i++) {
-
                     minLat = Math.min(parts[i].lat, parts[i + 1].lat);
                     maxLat = (minLat != parts[i].lat) ? parts[i].lat
                             : parts[i + 1].lat;
