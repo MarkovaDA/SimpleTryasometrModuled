@@ -1,8 +1,19 @@
 ymaps.ready(function () {
-    console.log("карта загружена");
+     console.log("карта загружена");
+    var showSectionsButton = new ymaps.control.Button({
+        data: { content: "Отобразить секции" },
+        options: { selectOnClick: true }
+    });
+    var showMarshrutButton = new ymaps.control.Button({
+        data: { content: "Получить маршруты" },
+        options: { selectOnClick: true }
+    });
     var map = new ymaps.Map('map', {
         center: [51.67, 39.18],
-        zoom: 15
+        zoom: 15,
+        controls: [showSectionsButton, showMarshrutButton,'zoomControl','fullscreenControl']
+    }, {
+        buttonMaxWidth: 300
     }),
     objectManager = new ymaps.ObjectManager();
     //всплывающая подсказка
@@ -26,24 +37,7 @@ ymaps.ready(function () {
             }
     });
     
-    //пока что функцию получения данных отключим
-    /*$.getJSON('object_manager/get_features')
-        .done(function (geoJson) {
-            console.log("geoJson is ready");
-            geoJson.features.filter(function(feature){
-                if (feature.geometry.type === "Circle"){
-                    feature.geometry.coordinates = feature.geometry.coordinates[0];
-                }
-            });
-            objectManager.add(geoJson);
-            objectManager.objects.options.set({
-                hintLayout: HintLayout
-            });
-            map.geoObjects.add(objectManager);
-    });*/
-    //сделать кнопку - показать все секции
-    var from, to, relocatedFrom = false;
-    
+    var from, to, multiRoute, relocatedFrom = false;    
     map.events.add('click', function(e){
         var coords = e.get('coords');
         if (from && to){
@@ -89,7 +83,49 @@ ymaps.ready(function () {
            });
         }
     }
- 
+    //отображаем все секции по нажатию на соответсвующую кнопку
+    showSectionsButton.events.add('select', function () {
+        $.getJSON('object_manager/get_features')
+        .done(function (geoJson) {
+            console.log("geoJson is ready");
+            geoJson.features.filter(function(feature){
+                if (feature.geometry.type === "Circle"){
+                    feature.geometry.coordinates = feature.geometry.coordinates[0];
+                }
+            });
+            objectManager.add(geoJson);
+            objectManager.objects.options.set({
+                hintLayout: HintLayout
+            });
+            map.geoObjects.add(objectManager);
+        });
+    });
+    //очищаем карту от секций
+    showSectionsButton.events.add('deselect', function () {
+        map.geoObjects.removeAll();
+    });
+    //отображение маршрута между двумя точками
+    showMarshrutButton.events.add('select', function() {
+        multiRoute = new ymaps.multiRouter.MultiRoute({
+        // Описание опорных точек мультимаршрута
+        referencePoints: [
+           from.geometry.getCoordinates(),
+           to.geometry.getCoordinates()
+        ],
+        //параметры маршрутизации
+        params: {
+            //Ограничение на максимальное количество маршрутов, возвращаемое маршрутизатором.
+            results: 5
+        }
+        }, {
+            //Автоматически устанавливать границы карты так, чтобы маршрут был виден целиком.
+            boundsAutoApply: true
+        });
+        map.geoObjects.add(multiRoute);
+    });
+    showMarshrutButton.events.add('deselect',function(){
+        map.geoObjects.remove(multiRoute);
+    });
 });
 
 
