@@ -9,7 +9,9 @@ su/vistar/tryasometr/model/objectmanager/GeoObjectCollection.class
 su/vistar/tryasometr/model/ResponseEntity.class
 su/vistar/tryasometr/controller/MainController.class
 su/vistar/tryasometr/model/objectmanager/Geometry.class
+su/vistar/tryasometr/model/Segment.class
 su/vistar/tryasometr/config/MyBatisConfig.class
 su/vistar/tryasometr/config/SpringWebMVCConfig.class
+su/vistar/tryasometr/model/Path.class
 su/vistar/tryasometr/mapper/SensorDataMapper.class
 su/vistar/tryasometr/model/objectmanager/Feature.class

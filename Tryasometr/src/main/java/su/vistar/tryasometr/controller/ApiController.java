@@ -1,5 +1,6 @@
 package su.vistar.tryasometr.controller;
 
+import java.util.ArrayList;
 import su.vistar.tryasometr.mapper.SensorDataMapper;
 import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import su.vistar.tryasometr.model.MapBounds;
+import su.vistar.tryasometr.model.Path;
 import su.vistar.tryasometr.model.Section;
 
 @Controller
@@ -24,7 +26,8 @@ public class ApiController {
     @Autowired
     private SensorDataMapper sensorMapper;
     //http://localhost:8080/tryasometr/
-
+    
+    
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelMap map) {
         ModelAndView model = new ModelAndView("index");
@@ -70,5 +73,14 @@ public class ApiController {
     @ResponseBody
     public List<Section> getSections() {
         return sensorMapper.selectAllSections();
+    }
+
+    @PostMapping(value="put_yandex_points")
+    @ResponseBody
+    public ResponseEntity anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths){
+        approximatePaths.get(0).getSegments().get(0).getPoints();
+        ResponseEntity entity = new ResponseEntity();
+        entity.setStatus("success");
+        return entity;
     }
 }

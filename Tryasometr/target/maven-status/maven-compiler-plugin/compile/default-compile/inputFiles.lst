@@ -3,6 +3,7 @@
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/ResponseEntity.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/SpringInitializer.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/controller/MainController.java
+/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Path.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/GeoObjectCollection.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Location.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/Geometry.java
@@ -11,5 +12,6 @@
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/SpringWebMVCConfig.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/MyBatisConfig.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Acceleration.java
+/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Segment.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/MapBounds.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/Feature.java

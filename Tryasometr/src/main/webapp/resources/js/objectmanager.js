@@ -66,7 +66,6 @@ ymaps.ready(function () {
                 });
             map.geoObjects.add(to);
         }
-        
     });
     objectManager.objects.events.add(['mouseenter', 'mouseleave'], onSectionHover);
     //приделать хинт еще с надписью
@@ -106,7 +105,7 @@ ymaps.ready(function () {
     });
     //отображение маршрута между двумя точками
     showMarshrutButton.events.add('select', function() {
-        multiRoute = new ymaps.multiRouter.MultiRoute({
+        /*multiRoute = new ymaps.multiRouter.MultiRoute({
         // Описание опорных точек мультимаршрута
         referencePoints: [
            from.geometry.getCoordinates(),
@@ -116,15 +115,56 @@ ymaps.ready(function () {
         params: {
             //Ограничение на максимальное количество маршрутов, возвращаемое маршрутизатором.
             results: 5
+            //routingMode: 'masstransit'
         }
         }, {
             //Автоматически устанавливать границы карты так, чтобы маршрут был виден целиком.
             boundsAutoApply: true
         });
-        map.geoObjects.add(multiRoute);
-    });
-    showMarshrutButton.events.add('deselect',function(){
-        map.geoObjects.remove(multiRoute);
+        map.geoObjects.add(multiRoute);*/
+        ymaps.route([
+            //аппроксимировать кртчайший маршрут по секциям
+            from.geometry.getCoordinates(),
+            to.geometry.getCoordinates()    
+        ]).then(function (route) {
+            map.geoObjects.add(route);
+            var paths = new Array();//все маршруты (пути)
+            for (var i = 0; i < route.getPaths().getLength(); i++) {
+                var currentPath = new Object();
+                    currentPath.id = i;
+                    currentPath.segments = new Array();
+                var way = route.getPaths().get(i);
+                var segments = way.getSegments();                
+                for (var j = 0; j < segments.length; j++) {
+                    var currentSegment = new Object();
+                    var coordinates = segments[j].getCoordinates();
+                    currentSegment.points = coordinates;
+                    currentPath.segments.push(currentSegment);
+                    //currentPath.segments[j].points = coordinates;
+                }
+                paths.push(currentPath);
+            }
+            //отправляем опорные точки аппроксимации на сервер
+            $.ajax({
+                    headers: { 
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json' 
+                    },
+                    'type': 'POST',
+                    'url': 'put_yandex_points',
+                    'data': JSON.stringify(paths),
+                    'dataType': 'json',
+                    'success': function(data){
+                        console.log(data);
+                    }
+            });
+            console.log(paths);
+        });
+        showMarshrutButton.events.add('deselect',function(){
+            //map.geoObjects.remove(multiRoute);
+            //из расчета, что у нас две метки и маршруты между ними
+            map.geoObjects.splice(2, map.geoObjects.getLength() - 2);
+        });
     });
 });
 
