@@ -28,6 +28,9 @@ public interface SensorDataMapper {
     @Select("select * from tryasometr_v2.sections")
     List<Section> selectAllSections();
     
+    @Select("select * from tryasometr_v2.sections limit #{from}, #{count}")
+    List<Section> selectCountSections(@Param("from")Integer from, @Param("count")Integer count);
+    
     @Insert("insert into tryasometr_v2.sections_params (k1,k2,k3,m1,m2,m3,section_id) values (#{k1},#{k2},#{k3},#{m1},#{m2},#{m3},#{section_id})")
     void insertSectionParamThree(@Param("k1")Double k1, @Param("k2")Double k2, @Param("k3")Double k3, @Param("m1")Double m1, @Param("m2")Double m2, @Param("m3")Double m3, @Param("section_id")Integer section_id);
     
@@ -43,5 +46,7 @@ public interface SensorDataMapper {
             + "lon4 between #{minLon} and #{maxLon})")
     List<Section> selectSectionsByMapBounds(@Param("minLat")Double minLat, @Param("minLon")Double minLon,
                                             @Param("maxLat")Double maxLat, @Param("maxLon")Double maxLon);
-    //проверить  - если одна из точек принадлежит отрезку, то секцию берем
+    
+    @Select("select * from tryasometr_v2.sections where sectionID = #{sectionID}")
+    Section getSectionById(@Param("sectionID")Integer sectionID);
 }

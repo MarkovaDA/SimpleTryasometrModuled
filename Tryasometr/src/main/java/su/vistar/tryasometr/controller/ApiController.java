@@ -1,11 +1,16 @@
 package su.vistar.tryasometr.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import su.vistar.tryasometr.mapper.SensorDataMapper;
 import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
 import su.vistar.tryasometr.model.ResponseEntity;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -19,14 +24,18 @@ import org.springframework.web.servlet.ModelAndView;
 import su.vistar.tryasometr.model.MapBounds;
 import su.vistar.tryasometr.model.Path;
 import su.vistar.tryasometr.model.Section;
+import su.vistar.tryasometr.model.Segment;
+import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
+import su.vistar.tryasometr.service.PathApproximationService;
 
 @Controller
 public class ApiController {
 
     @Autowired
-    private SensorDataMapper sensorMapper;
-    //http://localhost:8080/tryasometr/
+    private SensorDataMapper sensorMapper; //сделать отдельный сервис для всех используемых операций
     
+    @Autowired
+    private PathApproximationService pathService;
     
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelMap map) {
@@ -77,10 +86,39 @@ public class ApiController {
 
     @PostMapping(value="put_yandex_points")
     @ResponseBody
-    public ResponseEntity anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths){
-        approximatePaths.get(0).getSegments().get(0).getPoints();
-        ResponseEntity entity = new ResponseEntity();
-        entity.setStatus("success");
-        return entity;
+    public GeoObjectCollection anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths){
+        Iterator<Path> pathIterator = approximatePaths.iterator();
+        Iterator<Segment> segmentIterator;
+        Path currentPath;
+        Segment currentSegment;
+        List<Section> sections = new ArrayList<>(); 
+        //для каждого из путей
+        while(pathIterator.hasNext()){
+            currentPath = pathIterator.next();
+            segmentIterator = currentPath.getSegments().iterator();
+            //перебираем все сегменты в рамках пути
+            while(segmentIterator.hasNext()){
+                currentSegment = segmentIterator.next();
+                //для каждой точки в рамках одного сегмента
+                Map<Integer, Integer> mapSegments = new HashMap<>();
+                currentSegment.getPoints().forEach(point -> {
+                    Integer sectionID = pathService.getAppropriateSections(point);
+                    System.out.println(sectionID);
+                    if (sectionID != null){
+                        if (!mapSegments.containsKey(sectionID))
+                            mapSegments.put(sectionID, 1);
+                        else 
+                            mapSegments.replace(sectionID, mapSegments.get(sectionID) + 1);
+                    }       
+                });
+                //выбираем наиболее часто повторяющуюся секцию при оценке принадлежности сегмента
+                Integer findSectionID = 
+                mapSegments.entrySet().stream()
+                        .max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+                sections.add(sensorMapper.getSectionById(findSectionID));
+            }
+        }
+        return pathService.getCollection(new ArrayList<>(new LinkedHashSet<>(sections)));
     }
+   
 }

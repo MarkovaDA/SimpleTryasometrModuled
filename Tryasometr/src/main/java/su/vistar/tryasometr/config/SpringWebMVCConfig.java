@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
+import su.vistar.tryasometr.service.PathApproximationService;
 
 @Configuration
 @EnableWebMvc
@@ -24,6 +25,12 @@ public class SpringWebMVCConfig extends WebMvcConfigurerAdapter {
         resolver.setViewClass(JstlView.class);
         return resolver;
     }
+    
+    @Bean
+    public PathApproximationService pathService(){
+        return new PathApproximationService();
+    }
+    
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("resources/**").addResourceLocations("/resources/");

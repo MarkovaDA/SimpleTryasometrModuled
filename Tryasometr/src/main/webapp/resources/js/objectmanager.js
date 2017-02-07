@@ -68,7 +68,7 @@ ymaps.ready(function () {
         }
     });
     objectManager.objects.events.add(['mouseenter', 'mouseleave'], onSectionHover);
-    //приделать хинт еще с надписью
+
     function onSectionHover (e) {
         var objectId = e.get('objectId');
         if (e.get('type') === 'mouseenter'){
@@ -92,6 +92,7 @@ ymaps.ready(function () {
                     feature.geometry.coordinates = feature.geometry.coordinates[0];
                 }
             });
+            objectManager.removeAll();
             objectManager.add(geoJson);
             objectManager.objects.options.set({
                 hintLayout: HintLayout
@@ -105,23 +106,6 @@ ymaps.ready(function () {
     });
     //отображение маршрута между двумя точками
     showMarshrutButton.events.add('select', function() {
-        /*multiRoute = new ymaps.multiRouter.MultiRoute({
-        // Описание опорных точек мультимаршрута
-        referencePoints: [
-           from.geometry.getCoordinates(),
-           to.geometry.getCoordinates()
-        ],
-        //параметры маршрутизации
-        params: {
-            //Ограничение на максимальное количество маршрутов, возвращаемое маршрутизатором.
-            results: 5
-            //routingMode: 'masstransit'
-        }
-        }, {
-            //Автоматически устанавливать границы карты так, чтобы маршрут был виден целиком.
-            boundsAutoApply: true
-        });
-        map.geoObjects.add(multiRoute);*/
         ymaps.route([
             //аппроксимировать кртчайший маршрут по секциям
             from.geometry.getCoordinates(),
@@ -140,7 +124,6 @@ ymaps.ready(function () {
                     var coordinates = segments[j].getCoordinates();
                     currentSegment.points = coordinates;
                     currentPath.segments.push(currentSegment);
-                    //currentPath.segments[j].points = coordinates;
                 }
                 paths.push(currentPath);
             }
@@ -156,6 +139,12 @@ ymaps.ready(function () {
                     'dataType': 'json',
                     'success': function(data){
                         console.log(data);
+                        objectManager.removeAll();
+                        objectManager.add(data);
+                        objectManager.objects.options.set({
+                            hintLayout: HintLayout
+                        });
+                        map.geoObjects.add(objectManager);
                     }
             });
             console.log(paths);

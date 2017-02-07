@@ -9,6 +9,7 @@
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/Geometry.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/controller/ApiController.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/mapper/SensorDataMapper.java
+/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/service/PathApproximationService.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/SpringWebMVCConfig.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/MyBatisConfig.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Acceleration.java
