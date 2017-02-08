@@ -26,9 +26,6 @@ public class MainController {
     @Autowired
     private PathApproximationService pathService;
     
-    //private final String lineType = "LineString";
-    //private final String circleType = "Circle";
-
     @GetMapping(value = "/object_manager")
     public ModelAndView objectmanagerPage(ModelMap map) {
         ModelAndView model = new ModelAndView("objectmanager");
@@ -74,6 +71,19 @@ public class MainController {
         return builder.toString();*/
         return null;
     }
+    
+    /*@GetMapping(value = "/calculate_length")
+    public void calculateLength(){
+       List<Section> sections =  sensorMapper.selectAllSections();
+       sections.forEach(item ->{
+           double x1 = item.getLat1();
+           double x2 = item.getLat4();
+           double y1 = item.getLon1();
+           double y2 = item.getLon4();
+           double distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1)* (y2 - y1));
+           sensorMapper.calculateDistance(distance, item.getSeсtionID());
+        });
+    }*/
     
     private GeoObjectCollection getCollection(List<Section> sections){
       return pathService.getCollection(sections);
