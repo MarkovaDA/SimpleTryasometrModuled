@@ -122,4 +122,15 @@ public class PathApproximationService {
         }
         return collection;
     }
+    
+    public int  evaluateAzimuth(double lat1, double lat2, double lon1, double lon2){
+        double phi1 = lat1 * Math.PI/180;
+        double phi2 = lat2 * Math.PI /180;
+        double delta = (lon2 - lon1) * Math.PI/180;
+        double y = Math.sin(delta) * Math.cos(phi2);
+        double x = Math.cos(phi1) * Math.sin(phi2) 
+                - Math.sin(phi1) * Math.cos(phi2) * Math.cos(delta);
+        double sigma = Math.atan2(y, x);
+        return (int)((sigma * 180/Math.PI + 360) % 360);
+    }
 }

@@ -72,20 +72,18 @@ public class MainController {
         return null;
     }
     
-    /*@GetMapping(value = "/calculate_length")
+    @GetMapping(value = "/test_azimuth")
+    @ResponseBody
     public void calculateLength(){
-       List<Section> sections =  sensorMapper.selectAllSections();
-       sections.forEach(item ->{
-           double x1 = item.getLat1();
-           double x2 = item.getLat4();
-           double y1 = item.getLon1();
-           double y2 = item.getLon4();
-           double distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1)* (y2 - y1));
-           sensorMapper.calculateDistance(distance, item.getSeсtionID());
+        List<Section> sections = sensorMapper.selectAllSections();
+        sections.forEach(way -> {
+           int value = pathService.evaluateAzimuth(way.getLat1(), way.getLat2(), way.getLon1(), way.getLon2());
+           System.out.println(value);
+           sensorMapper.calculateMyAzimuth(value, way.getSeсtionID());
         });
-    }*/
+    }
     
     private GeoObjectCollection getCollection(List<Section> sections){
       return pathService.getCollection(sections);
-    }
+    }   
 }

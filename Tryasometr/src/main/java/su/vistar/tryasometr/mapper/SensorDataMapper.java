@@ -54,5 +54,7 @@ public interface SensorDataMapper {
     @Update("update tryasometr_v2.sections set length = #{dist} where sectionID = #{sectionID}")
     void calculateDistance(@Param("dist")Double dist, @Param("sectionID")Integer sectionID);
     
+    @Update("update tryasometr_v2.sections set my_azimuth = #{value} where sectionID = #{sectionID}")
+    void calculateMyAzimuth(@Param("value")Integer value, @Param("sectionID")Integer sectionID);
     
 }
