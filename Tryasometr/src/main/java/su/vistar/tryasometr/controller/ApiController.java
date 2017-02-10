@@ -111,14 +111,20 @@ public class ApiController {
                     searchedSectionsForSegment
                     = sensorMapper.selectSectionsByBounds(Math.min(point1[0], point2[0]) - pathService.MAX_DISTANCE, Math.min(point1[1], point2[1]) - pathService.MAX_DISTANCE,
                     Math.max(point1[0], point2[0]) + pathService.MAX_DISTANCE, Math.max(point1[1], point2[1]) + pathService.MAX_DISTANCE);
-                    System.out.println(searchedSectionsForSegment.size());
+                    System.out.println("число секций " + searchedSectionsForSegment.size());
                     //фильтрация по зонам
+                    System.out.println("азимут сегмента" + azimuth);
+                    searchedSectionsForSegment.forEach(item-> {
+                        System.out.println(item.getSectionID() + ":азимут" + item.getAzimuth1());
+                    });
                     /*int _azimuth = azimuth;
-                    searchedSectionsForSegment = searchedSectionsForSegment.stream().filter(p -> Math.abs(p.getMy_azimuth() - _azimuth) < 2).collect(Collectors.toList());*/
                     
+                    searchedSectionsForSegment = searchedSectionsForSegment.stream().filter(p -> Math.abs(p.getMy_azimuth() - _azimuth) < 2).collect(Collectors.toList());*/
+                    //System.out.println("после фильтрации " + searchedSectionsForSegment.size());
                     sections.addAll(searchedSectionsForSegment);
                 }
             }
+            
         }
         return pathService.getCollection(new ArrayList<>(new LinkedHashSet<>(sections)));
     }

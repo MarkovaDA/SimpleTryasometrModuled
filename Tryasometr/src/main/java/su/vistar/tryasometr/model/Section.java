@@ -12,7 +12,25 @@ public class Section {
     private Double lon3;
     private Double lat4;
     private Double lon4;
-    private Integer my_azimuth;
+    private Integer azimuth1;
+    private Integer azimuth2;
+
+    public Integer getAzimuth2() {
+        return azimuth2;
+    }
+
+    public void setAzimuth2(Integer azimuth2) {
+        this.azimuth2 = azimuth2;
+    }
+
+    public Integer getAzimuth3() {
+        return azimuth3;
+    }
+
+    public void setAzimuth3(Integer azimuth3) {
+        this.azimuth3 = azimuth3;
+    }
+    private Integer azimuth3;
 
     public Integer getSectionID() {
         return sectionID;
@@ -22,12 +40,12 @@ public class Section {
         this.sectionID = sectionID;
     }
 
-    public Integer getMy_azimuth() {
-        return my_azimuth;
+    public Integer getAzimuth1() {
+        return azimuth1;
     }
 
-    public void setMy_azimuth(Integer my_azimuth) {
-        this.my_azimuth = my_azimuth;
+    public void setAzimuth1(Integer azimuth1) {
+        this.azimuth1 = azimuth1;
     }
     public Double getLat1() {
         return lat1;

@@ -45,13 +45,15 @@ public class MainController {
     public void calculateLength(){
         List<Section> sections = sensorMapper.selectAllSections();
         sections.forEach(way -> {
-           int value = pathService.evaluateAzimuth(way.getLat1(), way.getLat2(), way.getLon1(), way.getLon2());
-           System.out.println(value);
-           sensorMapper.calculateMyAzimuth(value, way.getSectionID());
+           int value1 = pathService.evaluateAzimuth(way.getLat1(), way.getLat2(), way.getLon1(), way.getLon2());
+           int value2 = pathService.evaluateAzimuth(way.getLat2(), way.getLat3(), way.getLon2(), way.getLon3());
+           int value3 = pathService.evaluateAzimuth(way.getLat3(), way.getLat4(), way.getLon3(), way.getLon4());
+           sensorMapper.calculateMyAzimuth(value1,value2, value3, way.getSectionID());
         });
     }
     
     private GeoObjectCollection getCollection(List<Section> sections){
       return pathService.getCollection(sections);
-    }   
+    }
+
 }
