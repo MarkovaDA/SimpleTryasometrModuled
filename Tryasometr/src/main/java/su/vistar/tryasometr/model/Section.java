@@ -12,15 +12,23 @@ public class Section {
     private Double lon3;
     private Double lat4;
     private Double lon4;
+    private Integer my_azimuth;
 
-    public Integer getSeсtionID() {
-        return sectionID; 
+    public Integer getSectionID() {
+        return sectionID;
     }
 
-    public void setSeсtionID(Integer seсtionID) {
-        this.sectionID = seсtionID;
+    public void setSectionID(Integer sectionID) {
+        this.sectionID = sectionID;
     }
 
+    public Integer getMy_azimuth() {
+        return my_azimuth;
+    }
+
+    public void setMy_azimuth(Integer my_azimuth) {
+        this.my_azimuth = my_azimuth;
+    }
     public Double getLat1() {
         return lat1;
     }

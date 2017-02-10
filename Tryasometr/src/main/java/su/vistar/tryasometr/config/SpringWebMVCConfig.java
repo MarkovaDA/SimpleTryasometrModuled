@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
-import su.vistar.tryasometr.service.PathApproximationService;
+import su.vistar.tryasometr.service.PathService;
 
 @Configuration
 @EnableWebMvc
@@ -27,8 +27,8 @@ public class SpringWebMVCConfig extends WebMvcConfigurerAdapter {
     }
     
     @Bean
-    public PathApproximationService pathService(){
-        return new PathApproximationService();
+    public PathService pathService(){
+        return new PathService();
     }
     
     @Override

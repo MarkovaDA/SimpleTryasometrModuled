@@ -57,4 +57,7 @@ public interface SensorDataMapper {
     @Update("update tryasometr_v2.sections set my_azimuth = #{value} where sectionID = #{sectionID}")
     void calculateMyAzimuth(@Param("value")Integer value, @Param("sectionID")Integer sectionID);
     
+    @Select("select * from tryasometr_v2.sections where my_azimuth between #{start_azimuth} and #{end_azimuth}")
+    List<Section> selectSectionByAzimuth(@Param("start_azimuth")Integer startAzimuth, @Param("end_azimuth")Integer endAzimuth);
+    
 }

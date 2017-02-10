@@ -1,9 +1,9 @@
 package su.vistar.tryasometr.controller;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import su.vistar.tryasometr.mapper.SensorDataMapper;
@@ -11,7 +11,7 @@ import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
 import su.vistar.tryasometr.model.ResponseEntity;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -27,7 +27,7 @@ import su.vistar.tryasometr.model.Path;
 import su.vistar.tryasometr.model.Section;
 import su.vistar.tryasometr.model.Segment;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
-import su.vistar.tryasometr.service.PathApproximationService;
+import su.vistar.tryasometr.service.PathService;
 
 @Controller
 public class ApiController {
@@ -36,7 +36,7 @@ public class ApiController {
     private SensorDataMapper sensorMapper; //сделать отдельный сервис для всех используемых операций
 
     @Autowired
-    private PathApproximationService pathService;
+    private PathService pathService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelMap map) {
@@ -65,7 +65,6 @@ public class ApiController {
     @PostMapping(value = "/bounds_change")
     @ResponseBody
     public List<Section> getSectionsOnBoundsChange(@RequestBody MapBounds mapBounds) {
-        ResponseEntity entity = new ResponseEntity();
         //сформировать ограничительный прямоугольник
         double minLat = Math.min(mapBounds.getBottomCorner()[0], mapBounds.getTopCorner()[0]);
         double maxLat = (minLat == mapBounds.getBottomCorner()[0])
@@ -92,41 +91,33 @@ public class ApiController {
         Iterator<Segment> segmentIterator;
         Path currentPath;
         Segment currentSegment;
-        List<Section> sections = new ArrayList<>();
-        //для каждого из путей
+        List<Section> sections = new ArrayList<>();//итоговый набор найденных секций
+        List<Section> searchedSectionsForSegment = new ArrayList<>();//набор секций, найденных для одного сегмента
         while (pathIterator.hasNext()) {
             currentPath = pathIterator.next();
             segmentIterator = currentPath.getSegments().iterator();
-            //перебираем все сегменты в рамках пути
+            Double[] point1 = null, point2 = null;
+            int azimuth = -1;
             while (segmentIterator.hasNext()) {
+                searchedSectionsForSegment.clear();
                 currentSegment = segmentIterator.next();
-                //набор точек в рамках одного сегмента
-                List<Integer> pointsByOneSegment = new ArrayList<>();
-                currentSegment.getPoints().forEach(point -> {
-                    pathService.findSectionsWhichPointBelongs(point);
-                    List<Integer> sectionIDs = pathService.findSectionsWhichPointBelongs(point);
-                    if (!sectionIDs.isEmpty()) {
-                        pointsByOneSegment.addAll(sectionIDs);
-                    }
-                });
-                System.out.println("в рамках одного сегмента");
-                for(int i = 0; i < pointsByOneSegment.size(); i++){
-                    System.out.println(pointsByOneSegment.get(i));
+                if (currentSegment.getPoints().size() > 1) {
+                    point1 = currentSegment.getPoints().get(0);
+                    point2 = currentSegment.getPoints().get(currentSegment.getPoints().size() - 1);
+                    azimuth = pathService.evaluateAzimuth(point1[0], point2[0], point1[1], point2[1]);
                 }
-                //выбираем наиболее часто повторяющуюя секцию при оценке принадлежности сегмента
-                /*Integer findSectionId = Collections.max(pointsByOneSegment,
-                        (Integer o1, Integer o2) -> Collections.frequency(pointsByOneSegment, o1)
-                        - Collections.frequency(pointsByOneSegment, o2));*/
-                Integer findSectionId = Collections.max(pointsByOneSegment, new Comparator<Integer>(){
-                    @Override
-                    public int compare(Integer o1, Integer o2) {
-                        int fr1 = Collections.frequency(pointsByOneSegment, o1);
-                        int fr2 = Collections.frequency(pointsByOneSegment, o2);
-                        return (fr1 - fr2);
-                    }
-                });
-                System.out.println("найденная секция " + findSectionId);
-                sections.add(sensorMapper.getSectionById(findSectionId));
+                if (azimuth > -1) {
+                    //выбор по геолокации
+                    searchedSectionsForSegment
+                    = sensorMapper.selectSectionsByBounds(Math.min(point1[0], point2[0]) - pathService.MAX_DISTANCE, Math.min(point1[1], point2[1]) - pathService.MAX_DISTANCE,
+                    Math.max(point1[0], point2[0]) + pathService.MAX_DISTANCE, Math.max(point1[1], point2[1]) + pathService.MAX_DISTANCE);
+                    System.out.println(searchedSectionsForSegment.size());
+                    //фильтрация по зонам
+                    /*int _azimuth = azimuth;
+                    searchedSectionsForSegment = searchedSectionsForSegment.stream().filter(p -> Math.abs(p.getMy_azimuth() - _azimuth) < 2).collect(Collectors.toList());*/
+                    
+                    sections.addAll(searchedSectionsForSegment);
+                }
             }
         }
         return pathService.getCollection(new ArrayList<>(new LinkedHashSet<>(sections)));
