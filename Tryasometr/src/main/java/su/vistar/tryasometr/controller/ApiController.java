@@ -11,6 +11,7 @@ import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
 import su.vistar.tryasometr.model.ResponseEntity;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -88,83 +89,90 @@ public class ApiController {
     @PostMapping(value = "put_yandex_points")
     @ResponseBody
     public GeoObjectCollection anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths) {
-        int abs = 2;
         Iterator<Path> pathIterator = approximatePaths.iterator();
         Iterator<Segment> segmentIterator;
+        List<Double[]> allPoints = new ArrayList<>();
         Path currentPath;
-        Segment currentSegment;
+        Segment nextSegment;
         List<Section> sections = new ArrayList<>();//итоговый набор найденных секций
         List<Section> searchedSectionsForSegment = new ArrayList<>();//набор секций, найденных для одного сегмента
+        //собрали все точки, формирующие прямоугольник
         while (pathIterator.hasNext()) {
             currentPath = pathIterator.next();
             segmentIterator = currentPath.getSegments().iterator();
-            Double[] point1 = null, point2 = null;
-            int azimuth = -1;
             while (segmentIterator.hasNext()) {
                 searchedSectionsForSegment.clear();
-                currentSegment = segmentIterator.next();
-                if (currentSegment.getPoints().size() > 1) {
-                    point1 = currentSegment.getPoints().get(0);
-                    point2 = currentSegment.getPoints().get(currentSegment.getPoints().size() - 1);
-                    azimuth = pathService.evaluateAzimuth(point1[0], point2[0], point1[1], point2[1]);
-                }
-                if (azimuth > -1) {
-                    //выбор по геолокации
-                    searchedSectionsForSegment
-                    = sensorMapper.selectSectionsByBounds(Math.min(point1[0], point2[0]) - pathService.MAX_DISTANCE, Math.min(point1[1], point2[1]) - pathService.MAX_DISTANCE,
-                    Math.max(point1[0], point2[0]) + pathService.MAX_DISTANCE, Math.max(point1[1], point2[1]) + pathService.MAX_DISTANCE);
-                    System.out.println("число секций " + searchedSectionsForSegment.size());
-                    //фильтрация по зонам
-                    System.out.println("азимут сегмента " + azimuth);
-                    System.out.println("до фильтрации");
-                    
-                    searchedSectionsForSegment.forEach(item-> {
-                        System.out.println(item);
-                    });
-                    int _azimuth = azimuth;
-                    searchedSectionsForSegment = searchedSectionsForSegment.stream()
-                            .filter(p -> Math.abs(p.getAzimuth1() - _azimuth) < abs
-                                    || Math.abs(p.getAzimuth2() - _azimuth) < abs
-                                    || Math.abs(p.getAzimuth3() - _azimuth) < abs
-                            )
-                            .collect(Collectors.toList());                   
-                    System.out.println("после фильтрации");
-                    searchedSectionsForSegment.forEach(item-> {
-                        System.out.println(item);
-                    });
-                    sections.addAll(searchedSectionsForSegment);
-                }
+                nextSegment = segmentIterator.next();
+                allPoints.addAll(nextSegment.getPoints());
             }
-            
+        }
+        Double[] prevPoint;
+        Double[] nextPoint;
+        //переделать эту конструкцию,заведя два итератора
+        for (int i = 0; i < allPoints.size() - 1; i++) {
+            Double[] bottomPoint = new Double[2];
+            Double[] topPoint = new Double[2];
+            prevPoint = allPoints.get(i);
+            nextPoint = allPoints.get(i + 1);
+            bottomPoint[0] = Math.min(nextPoint[0], prevPoint[0]);
+            bottomPoint[1] = Math.min(nextPoint[1], prevPoint[1]);
+            topPoint[0] = Math.max(nextPoint[0], prevPoint[0]);
+            topPoint[1] = Math.max(nextPoint[1], prevPoint[1]);
+            //азимут именно для отрезка считается
+            //(double lat1, double lat2, double lon1, double lon2)
+            int azimuth = pathService.evaluateAzimuth(prevPoint[0], nextPoint[0], prevPoint[1], nextPoint[1]);
+            System.out.println("азимут кусочка " + azimuth);
+            //minLat, minLon, maxLat, maxLon
+            searchedSectionsForSegment
+                    = sensorMapper.selectSectionsByBounds(bottomPoint[0], bottomPoint[1],topPoint[0], topPoint[1]);
+            System.out.println("число секций до фильтрации" + searchedSectionsForSegment.size());
+
+            searchedSectionsForSegment = searchedSectionsForSegment.stream()
+                    .filter(p -> Math.abs(p.getAzimuth1() - azimuth) < 2
+                            || Math.abs(p.getAzimuth2() - azimuth) < 2
+                            || Math.abs(p.getAzimuth3() - azimuth) < 2
+                    )
+                    .collect(Collectors.toList());
+            System.out.println("число секций после фильтрации  " + searchedSectionsForSegment.size());
+            searchedSectionsForSegment.forEach(item-> { 
+                    System.out.println(item); 
+            });
+            sections.addAll(searchedSectionsForSegment);         
         }
         return pathService.getCollection(new ArrayList<>(new LinkedHashSet<>(sections)));
     }
-
+    ///проработать алгоритм разбиения на прямоугольники.
+    ///взаимопересекающиеся области с расстоянием не меньше заданного
     @PostMapping(value = "draw_rectangles")
     @ResponseBody
-    public GeoObjectCollection drawWrapperRectangles(@RequestBody List<Path> approximatePaths){
-        //пересмотреть этот метод!!!
+    public GeoObjectCollection drawWrapperRectangles(@RequestBody List<Path> approximatePaths) {
         Iterator<Path> pathIterator = approximatePaths.iterator();
         List<Rectangle> rectangles = new ArrayList<>();
         Path currentPath;
+        List<Double[]> allPoints = new ArrayList<>();
         while (pathIterator.hasNext()) {
             currentPath = pathIterator.next();
             Iterator<Segment> segmentIterator = currentPath.getSegments().iterator();
-            Segment currentSegment;
-            while(segmentIterator.hasNext()){
-                Double[] point1, point2;
-                Double[] bottomPoint = new Double[2];
-                Double[] topPoint = new Double[2];
-                currentSegment = segmentIterator.next();
-                point1 = currentSegment.getPoints().get(0);
-                point2 = currentSegment.getPoints().get(currentSegment.getPoints().size() - 1);
-                bottomPoint[0] = Math.min(point1[0], point2[0]) - pathService.MAX_DISTANCE;
-                bottomPoint[1] = Math.min(point1[1], point2[1]) - pathService.MAX_DISTANCE;
-                topPoint[0] = Math.max(point1[0], point2[0]) + pathService.MAX_DISTANCE;
-                topPoint[1] = Math.max(point1[1], point2[1]) + pathService.MAX_DISTANCE;              
-                Rectangle drawedRectangle = new Rectangle(bottomPoint, topPoint);
-                rectangles.add(drawedRectangle);
+            Segment nextSegment;
+            while (segmentIterator.hasNext()) {
+                nextSegment = segmentIterator.next();
+                allPoints.addAll(nextSegment.getPoints());
             }
+        }
+        Double[] nextPoint;
+        Double[] prevPoint;
+        //переделать эту конструкцию,заведя два итератора
+        for (int i = 0; i < allPoints.size() - 1; i++) {
+            Double[] bottomPoint = new Double[2];
+            Double[] topPoint = new Double[2];
+            nextPoint = allPoints.get(i);
+            prevPoint = allPoints.get(i + 1);
+            bottomPoint[0] = Math.min(prevPoint[0], nextPoint[0]);
+            bottomPoint[1] = Math.min(prevPoint[1], nextPoint[1]);
+            topPoint[0] = Math.max(prevPoint[0], nextPoint[0]);
+            topPoint[1] = Math.max(prevPoint[1], nextPoint[1]);
+            Rectangle drawedRectangle = new Rectangle(bottomPoint, topPoint);
+            rectangles.add(drawedRectangle);
         }
         return pathService.getRectangleCollection(rectangles);
     }

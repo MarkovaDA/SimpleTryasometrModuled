@@ -16,6 +16,7 @@ ymaps.ready(function () {
         buttonMaxWidth: 300
     }),
     objectManager = new ymaps.ObjectManager();
+    rectObjectManager = new ymaps.ObjectManager();
     //всплывающая подсказка
     var HintLayout = ymaps.templateLayoutFactory.createClass("<div class='my-hint'>" +
         "<b>Оценка качества</b><br />" +
@@ -147,26 +148,27 @@ ymaps.ready(function () {
                         map.geoObjects.add(objectManager);
                     }
             });
-            //
+            //аапроксимирующие прямоугольники
             $.ajax({
-                    headers: { 
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json' 
-                    },
-                    'type': 'POST',
-                    'url': 'draw_rectangles',
-                    'data': JSON.stringify(paths),
-                    'dataType': 'json',
-                    'success': function(data){
-                        console.log(data);
-                        //здесь нужны два object-manager
-                        /*objectManager.removeAll();
-                        objectManager.add(data);
-                        objectManager.objects.options.set({
-                            hintLayout: HintLayout
-                        });
-                        map.geoObjects.add(objectManager);*/
-                    }
+                headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+                },
+                'type': 'POST',
+                'url': 'draw_rectangles',
+                'data': JSON.stringify(paths),
+                'dataType': 'json',
+                'success': function(data){
+                    console.log("drawed features");
+                    console.log(data);
+                    //здесь нужны два object-manager
+                    rectObjectManager.removeAll();
+                    rectObjectManager.add(data);
+                    rectObjectManager.objects.options.set({
+                        hintLayout: HintLayout
+                    });
+                    map.geoObjects.add(rectObjectManager);
+                }
             });
             console.log(paths);
         });
