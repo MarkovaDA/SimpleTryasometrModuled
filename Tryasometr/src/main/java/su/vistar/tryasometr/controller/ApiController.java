@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import su.vistar.tryasometr.model.MapBounds;
 import su.vistar.tryasometr.model.Path;
+import su.vistar.tryasometr.model.Rectangle;
 import su.vistar.tryasometr.model.Section;
 import su.vistar.tryasometr.model.Segment;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
@@ -87,6 +88,7 @@ public class ApiController {
     @PostMapping(value = "put_yandex_points")
     @ResponseBody
     public GeoObjectCollection anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths) {
+        int abs = 2;
         Iterator<Path> pathIterator = approximatePaths.iterator();
         Iterator<Segment> segmentIterator;
         Path currentPath;
@@ -113,14 +115,23 @@ public class ApiController {
                     Math.max(point1[0], point2[0]) + pathService.MAX_DISTANCE, Math.max(point1[1], point2[1]) + pathService.MAX_DISTANCE);
                     System.out.println("число секций " + searchedSectionsForSegment.size());
                     //фильтрация по зонам
-                    System.out.println("азимут сегмента" + azimuth);
-                    searchedSectionsForSegment.forEach(item-> {
-                        System.out.println(item.getSectionID() + ":азимут" + item.getAzimuth1());
-                    });
-                    /*int _azimuth = azimuth;
+                    System.out.println("азимут сегмента " + azimuth);
+                    System.out.println("до фильтрации");
                     
-                    searchedSectionsForSegment = searchedSectionsForSegment.stream().filter(p -> Math.abs(p.getMy_azimuth() - _azimuth) < 2).collect(Collectors.toList());*/
-                    //System.out.println("после фильтрации " + searchedSectionsForSegment.size());
+                    searchedSectionsForSegment.forEach(item-> {
+                        System.out.println(item);
+                    });
+                    int _azimuth = azimuth;
+                    searchedSectionsForSegment = searchedSectionsForSegment.stream()
+                            .filter(p -> Math.abs(p.getAzimuth1() - _azimuth) < abs
+                                    || Math.abs(p.getAzimuth2() - _azimuth) < abs
+                                    || Math.abs(p.getAzimuth3() - _azimuth) < abs
+                            )
+                            .collect(Collectors.toList());                   
+                    System.out.println("после фильтрации");
+                    searchedSectionsForSegment.forEach(item-> {
+                        System.out.println(item);
+                    });
                     sections.addAll(searchedSectionsForSegment);
                 }
             }
@@ -129,4 +140,32 @@ public class ApiController {
         return pathService.getCollection(new ArrayList<>(new LinkedHashSet<>(sections)));
     }
 
+    @PostMapping(value = "draw_rectangles")
+    @ResponseBody
+    public GeoObjectCollection drawWrapperRectangles(@RequestBody List<Path> approximatePaths){
+        //пересмотреть этот метод!!!
+        Iterator<Path> pathIterator = approximatePaths.iterator();
+        List<Rectangle> rectangles = new ArrayList<>();
+        Path currentPath;
+        while (pathIterator.hasNext()) {
+            currentPath = pathIterator.next();
+            Iterator<Segment> segmentIterator = currentPath.getSegments().iterator();
+            Segment currentSegment;
+            while(segmentIterator.hasNext()){
+                Double[] point1, point2;
+                Double[] bottomPoint = new Double[2];
+                Double[] topPoint = new Double[2];
+                currentSegment = segmentIterator.next();
+                point1 = currentSegment.getPoints().get(0);
+                point2 = currentSegment.getPoints().get(currentSegment.getPoints().size() - 1);
+                bottomPoint[0] = Math.min(point1[0], point2[0]) - pathService.MAX_DISTANCE;
+                bottomPoint[1] = Math.min(point1[1], point2[1]) - pathService.MAX_DISTANCE;
+                topPoint[0] = Math.max(point1[0], point2[0]) + pathService.MAX_DISTANCE;
+                topPoint[1] = Math.max(point1[1], point2[1]) + pathService.MAX_DISTANCE;              
+                Rectangle drawedRectangle = new Rectangle(bottomPoint, topPoint);
+                rectangles.add(drawedRectangle);
+            }
+        }
+        return pathService.getRectangleCollection(rectangles);
+    }
 }

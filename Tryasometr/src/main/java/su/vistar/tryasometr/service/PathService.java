@@ -7,6 +7,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import su.vistar.tryasometr.mapper.SensorDataMapper;
+import su.vistar.tryasometr.model.Rectangle;
 import su.vistar.tryasometr.model.Section;
 import su.vistar.tryasometr.model.objectmanager.Feature;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
@@ -21,7 +22,9 @@ public class PathService {
     private final int count = 50;
     private final String lineType = "LineString";
     private final String circleType = "Circle";
-    public final double MAX_DISTANCE = 0.005;
+    private final String rectType = "Rectangle";
+    
+    public final double MAX_DISTANCE = 0.000025;
     private final String reportStr = "point=[%.8f,%.8f],section_id=%d";
 
     public Integer getAppropriateSections(Double[] point) {
@@ -132,5 +135,34 @@ public class PathService {
                 - Math.sin(phi1) * Math.cos(phi2) * Math.cos(delta);
         double sigma = Math.atan2(y, x);
         return (int)((sigma * 180/Math.PI + 360) % 360);
+    }
+    
+    public GeoObjectCollection getRectangleCollection(List<Rectangle> rectangles){
+        //координаты углов прямоугольника
+        GeoObjectCollection collection = new GeoObjectCollection();
+        Iterator<Rectangle> iterator = rectangles.iterator();
+        Feature feature;
+        Geometry geometry;
+        int counter = 1000;
+        Rectangle current;
+        while (iterator.hasNext()) {
+            current = iterator.next();
+            feature = new Feature();
+            feature.setId(counter++);
+            geometry = new Geometry();
+            geometry.setType(rectType);
+            geometry.getCoordinates().add(current.getBottomPoint());
+            geometry.getCoordinates().add(current.getTopPoint());
+            feature.setGeometry(geometry);
+            feature.getOptions().put("strokeWidth", 2);
+            feature.getOptions().put("strokeColor", "#000000");
+            feature.getOptions().put("opacity", "0.5");
+            System.out.println("feature coordinates");
+            System.out.println(current.getBottomPoint()[0].toString() + " " +  current.getBottomPoint()[1].toString());
+            System.out.println(current.getTopPoint()[0].toString() + " " + current.getTopPoint()[1].toString());
+            collection.getFeatures().add(feature);
+            counter++;
+        }
+        return collection;
     }
 }

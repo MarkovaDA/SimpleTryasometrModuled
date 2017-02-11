@@ -147,6 +147,27 @@ ymaps.ready(function () {
                         map.geoObjects.add(objectManager);
                     }
             });
+            //
+            $.ajax({
+                    headers: { 
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json' 
+                    },
+                    'type': 'POST',
+                    'url': 'draw_rectangles',
+                    'data': JSON.stringify(paths),
+                    'dataType': 'json',
+                    'success': function(data){
+                        console.log(data);
+                        //здесь нужны два object-manager
+                        /*objectManager.removeAll();
+                        objectManager.add(data);
+                        objectManager.objects.options.set({
+                            hintLayout: HintLayout
+                        });
+                        map.geoObjects.add(objectManager);*/
+                    }
+            });
             console.log(paths);
         });
         showMarshrutButton.events.add('deselect',function(){

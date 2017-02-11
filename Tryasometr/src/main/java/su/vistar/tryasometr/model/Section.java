@@ -110,5 +110,10 @@ public class Section {
     public void setLon4(Double lon4) {
         this.lon4 = lon4;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Section{" + "sectionID=" + sectionID + ", azimuth1=" + azimuth1 + ", azimuth2=" + azimuth2 + ", azimuth3=" + azimuth3 + '}';
+    }
+     
 }

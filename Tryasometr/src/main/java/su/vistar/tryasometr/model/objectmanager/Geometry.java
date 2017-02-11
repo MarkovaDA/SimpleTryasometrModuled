@@ -38,6 +38,5 @@ public class Geometry {
 
     public void setType(String type) {
         this.type = type;
-    }
-    
+    }   
 }

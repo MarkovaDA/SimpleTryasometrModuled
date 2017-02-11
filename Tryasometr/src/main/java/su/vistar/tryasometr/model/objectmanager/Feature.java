@@ -58,5 +58,11 @@ public class Feature {
     public void setGeometry(Geometry geometry) {
         this.geometry = geometry;
     }
+
+    @Override
+    public String toString() {
+        return "Feature{" + "type=" + type + ", id=" + id + ", geometry=" + geometry + ", options=" + options + '}';
+    }
+    
     
 }
