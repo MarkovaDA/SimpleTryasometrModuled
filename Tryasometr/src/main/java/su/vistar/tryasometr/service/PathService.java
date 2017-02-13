@@ -111,7 +111,7 @@ public class PathService {
             rgbaColor = String.format(colorPattern, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
             feature.getOptions().put("strokeColor", rgbaColor);
             collection.getFeatures().add(feature);
-
+            //кругляк обрамляющий
             feature = new Feature();
             feature.setId(counter++);
             geometry = new Geometry();
@@ -154,6 +154,12 @@ public class PathService {
             geometry.getCoordinates().add(current.getBottomPoint());
             geometry.getCoordinates().add(current.getTopPoint());
             feature.setGeometry(geometry);
+            feature.getProperties().put("rectLength", 
+            Math.sqrt((current.getBottomPoint()[0] - current.getTopPoint()[0]) * 
+                       (current.getBottomPoint()[0] - current.getTopPoint()[0]) + 
+                       (current.getBottomPoint()[1] - current.getTopPoint()[1])*
+                       (current.getBottomPoint()[1] - current.getTopPoint()[1]))                    
+            );
             feature.getOptions().put("strokeWidth", 2);
             feature.getOptions().put("strokeColor", "#000000");
             feature.getOptions().put("opacity", "0.5");
@@ -164,5 +170,10 @@ public class PathService {
             counter++;
         }
         return collection;
+    }
+
+    public double euclideanDistance(Double[] point1, Double[] point2){
+        return Math.sqrt((point1[0] - point2[0])*(point1[0] - point2[0]) 
+               +  (point1[1] - point2[1])*(point1[1] - point2[1]));
     }
 }

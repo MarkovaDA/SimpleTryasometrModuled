@@ -21,6 +21,7 @@ ymaps.ready(function () {
     var HintLayout = ymaps.templateLayoutFactory.createClass("<div class='my-hint'>" +
         "<b>Оценка качества</b><br />" +
         "{{properties.sectionId}}" +
+        "{{properties.rectLength}}"+
         "</div>", {
             getShape: function () {
                 var el = this.getElement(),
