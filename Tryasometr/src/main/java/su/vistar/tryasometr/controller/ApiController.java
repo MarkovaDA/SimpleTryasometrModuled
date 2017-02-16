@@ -1,9 +1,7 @@
 package su.vistar.tryasometr.controller;
 
-import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import su.vistar.tryasometr.mapper.SensorDataMapper;
@@ -11,8 +9,7 @@ import su.vistar.tryasometr.model.Acceleration;
 import su.vistar.tryasometr.model.Location;
 import su.vistar.tryasometr.model.ResponseEntity;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import su.vistar.tryasometr.model.MapBounds;
+import su.vistar.tryasometr.model.BasePointData;
 import su.vistar.tryasometr.model.Path;
 import su.vistar.tryasometr.model.Rectangle;
 import su.vistar.tryasometr.model.Section;
@@ -65,22 +62,6 @@ public class ApiController {
         return entity;
     }
 
-    @PostMapping(value = "/bounds_change")
-    @ResponseBody
-    public List<Section> getSectionsOnBoundsChange(@RequestBody MapBounds mapBounds) {
-        //сформировать ограничительный прямоугольник
-        double minLat = Math.min(mapBounds.getBottomCorner()[0], mapBounds.getTopCorner()[0]);
-        double maxLat = (minLat == mapBounds.getBottomCorner()[0])
-                ? mapBounds.getTopCorner()[0]
-                : mapBounds.getBottomCorner()[0];
-        double minLon = Math.min(mapBounds.getBottomCorner()[1], mapBounds.getTopCorner()[1]);
-        double maxLon = (minLon == mapBounds.getBottomCorner()[1])
-                ? mapBounds.getTopCorner()[1]
-                : mapBounds.getBottomCorner()[1];
-        //получаем все секции внутри ограничивающего прямоугольника
-        return sensorMapper.selectSectionsByBounds(minLat, minLon, maxLat, maxLon);
-    }
-
     @GetMapping(value = "/get_sections")
     @ResponseBody
     public List<Section> getSections() {
@@ -96,55 +77,63 @@ public class ApiController {
         Path currentPath;
         Segment nextSegment;
         List<Section> sections = new ArrayList<>();//итоговый набор найденных секций
-        List<Section> searchedSectionsForSegment = new ArrayList<>();//набор секций, найденных для одного сегмента
+        List<Section> searchedSectionsForPart = new ArrayList<>();//набор секций, найденных для одного сегмента
+        List<Section> filteredSectionsForPart = new ArrayList<>();
         //собрали все точки, формирующие прямоугольник
         while (pathIterator.hasNext()) {
             currentPath = pathIterator.next();
             segmentIterator = currentPath.getSegments().iterator();
             while (segmentIterator.hasNext()) {
-                searchedSectionsForSegment.clear();
                 nextSegment = segmentIterator.next();
                 allPoints.addAll(nextSegment.getPoints());
             }
         }
+        //сама оценка по прямоугольникам
         Double[] prevPoint;
-        Double[] nextPoint;
-        //переделать эту конструкцию,заведя два итератора
-        for (int i = 0; i < allPoints.size() - 1; i++) {
-            Double[] bottomPoint = new Double[2];
-            Double[] topPoint = new Double[2];
-            prevPoint = allPoints.get(i);
-            nextPoint = allPoints.get(i + 1);
-            bottomPoint[0] = Math.min(nextPoint[0], prevPoint[0]);
-            bottomPoint[1] = Math.min(nextPoint[1], prevPoint[1]);
-            topPoint[0] = Math.max(nextPoint[0], prevPoint[0]);
-            topPoint[1] = Math.max(nextPoint[1], prevPoint[1]);
-            //азимут именно для отрезка считается
-            //(double lat1, double lat2, double lon1, double lon2)
-            int azimuth = pathService.evaluateAzimuth(prevPoint[0], nextPoint[0], prevPoint[1], nextPoint[1]);
+        Double[] nextPoint = null;
+        double distanceDiag;
+        prevPoint = allPoints.get(0);
+        int i = 0;
+        System.out.println("кол-во точек:" + allPoints.size());
+        while (i < allPoints.size() - 1) {
+            int j = i + 1;
+            do {
+                if (j == allPoints.size()) break;               
+                nextPoint = allPoints.get(j);
+                distanceDiag = pathService.euclideanDistance(prevPoint, nextPoint);
+                j++;
+            } 
+            while (distanceDiag < 0.002); //еще ограничение поставить        
+            int azimuth = pathService.evaluateAzimuth(prevPoint[0], nextPoint[0], prevPoint[1], nextPoint[1]); //азимут отрезка
             System.out.println("азимут кусочка " + azimuth);
-            //minLat, minLon, maxLat, maxLon
-            searchedSectionsForSegment
-                    = sensorMapper.selectSectionsByBounds(bottomPoint[0], bottomPoint[1], topPoint[0], topPoint[1]);
-            System.out.println("число секций до фильтрации" + searchedSectionsForSegment.size());
-
-            searchedSectionsForSegment = searchedSectionsForSegment.stream()
-                    .filter(p -> Math.abs(p.getAzimuth1() - azimuth) < 2
-                            || Math.abs(p.getAzimuth2() - azimuth) < 2
-                            || Math.abs(p.getAzimuth3() - azimuth) < 2
-                    )
-                    .collect(Collectors.toList());
-            System.out.println("число секций после фильтрации  " + searchedSectionsForSegment.size());
-            searchedSectionsForSegment.forEach(item -> {
+            searchedSectionsForPart = pathService.getSectionsIntoRectangle(prevPoint, nextPoint);
+            System.out.println("число секций до фильтрации" + searchedSectionsForPart.size());     
+            searchedSectionsForPart.forEach(item -> {
                 System.out.println(item);
             });
-            sections.addAll(searchedSectionsForSegment);
+            searchedSectionsForPart = searchedSectionsForPart.stream()
+                    .filter(p -> Math.abs(p.getAzimuth1() - azimuth) <= 30
+                            || Math.abs(p.getAzimuth2() - azimuth) <= 30
+                            || Math.abs(p.getAzimuth3() - azimuth) <= 30
+                    )
+                    .collect(Collectors.toList());           
+            sections.addAll(searchedSectionsForPart);
+            System.out.println("число секций после фильтрации" + filteredSectionsForPart.size());
+            filteredSectionsForPart.forEach(item -> {
+                System.out.println(item);
+            });
+            prevPoint = nextPoint;
+            i = j;
         }
-        return pathService.getCollection(new ArrayList<>(new LinkedHashSet<>(sections)));
+        return pathService.getSectionCollection(sections);
     }
 
-    ///проработать алгоритм разбиения на прямоугольники.
-    ///взаимопересекающиеся области с расстоянием не меньше заданного
+    @PostMapping(value = "draw_base_points")
+    @ResponseBody
+    public GeoObjectCollection drawBasePoints(@RequestBody List<Path> approximatePaths){
+        return pathService.getBasePointsCollection(approximatePaths);
+    }
+    
     @PostMapping(value = "draw_rectangles")
     @ResponseBody
     public GeoObjectCollection drawWrapperRectangles(@RequestBody List<Path> approximatePaths) {
@@ -152,68 +141,40 @@ public class ApiController {
         List<Rectangle> rectangles = new ArrayList<>();
         Path currentPath;
         List<Double[]> allPoints = new ArrayList<>();
-        List<Integer> accordingSegments = new ArrayList<>();
-        Double[] nextPoint;
+        Map<Integer, BasePointData> dataMap = new HashMap<>();
+        Double[] nextPoint = null;
         Double[] prevPoint;
-        int indexOfSegment;
         while (pathIterator.hasNext()) {
             currentPath = pathIterator.next();
             Iterator<Segment> segmentIterator = currentPath.getSegments().iterator();
             Segment nextSegment;
-            indexOfSegment = 0;
             while (segmentIterator.hasNext()) {
                 nextSegment = segmentIterator.next();
                 allPoints.addAll(nextSegment.getPoints());
-                for (Double[] allPoint : allPoints) {
-                    accordingSegments.add(indexOfSegment);
-                }
-                indexOfSegment++;
             }
         }
-        //1 способ - просто попарное объединение
-        /*for (int i = 0; i < allPoints.size() - 1; i++) {
-            Double[] bottomPoint = new Double[2];
-            Double[] topPoint = new Double[2];
-            nextPoint = allPoints.get(i);
-            prevPoint = allPoints.get(i + 1);
-            bottomPoint[0] = Math.min(prevPoint[0], nextPoint[0]);
-            bottomPoint[1] = Math.min(prevPoint[1], nextPoint[1]);
-            topPoint[0] = Math.max(prevPoint[0], nextPoint[0]);
-            topPoint[1] = Math.max(prevPoint[1], nextPoint[1]);
-            Rectangle drawedRectangle = new Rectangle(bottomPoint, topPoint);
-            rectangles.add(drawedRectangle);
-        }*/
-        //2 способ - объединение точек, удаленных не более, чем 0.005
+        
         double distanceDiag;
         prevPoint = allPoints.get(0);
         int i = 0;
+        System.out.println("кол-во точек:" + allPoints.size());
         while (i < allPoints.size() - 1) {
             int j = i + 1;
             do {
-                //проверять условие - конечная ли точка сегмента, если конечная, то 
-                //рисовать прямоугольник в любом случае
+                if (j == allPoints.size()) break;               
                 nextPoint = allPoints.get(j);
                 distanceDiag = pathService.euclideanDistance(prevPoint, nextPoint);
-                if (!Objects.equals(accordingSegments.get(i), accordingSegments.get(j))
-                    && distanceDiag < 0.005){
-                    System.out.println("точки одного сегмента объединяются");
-                    break;
-                }   
                 j++;
-            } while (j < allPoints.size() && distanceDiag < 0.005);
-            Double[] bottomPoint = new Double[2];
-            Double[] topPoint = new Double[2];
-            bottomPoint[0] = Math.min(prevPoint[0], nextPoint[0]);
-            bottomPoint[1] = Math.min(prevPoint[1], nextPoint[1]);
-            topPoint[0] = Math.max(prevPoint[0], nextPoint[0]);
-            topPoint[1] = Math.max(prevPoint[1], nextPoint[1]);
-            Rectangle drawedRectangle = new Rectangle(bottomPoint, topPoint);
-            rectangles.add(drawedRectangle);
+            } 
+            while (distanceDiag < 0.002); //еще ограничение поставить        
+            rectangles.add(pathService.getRectangleByPoints(prevPoint, nextPoint));
             prevPoint = nextPoint;
-            System.out.println("i=" + i + " j=" + j);
+            System.out.println("i=" + i + ",j="+j);
             i = j;
-            
         }
         return pathService.getRectangleCollection(rectangles);
     }
+
+
+    
 }

@@ -25,7 +25,7 @@ public class Geometry {
     
     public Geometry() {
         coordinates = new ArrayList<>();
-        this.radius = 15;
+        this.radius = 5;
     }
 
     public Geometry(double[] coordinates, String type) {

@@ -13,6 +13,7 @@ su/vistar/tryasometr/model/Rectangle.class
 su/vistar/tryasometr/model/objectmanager/Geometry.class
 su/vistar/tryasometr/model/Segment.class
 su/vistar/tryasometr/config/MyBatisConfig.class
+su/vistar/tryasometr/model/BasePointData.class
 su/vistar/tryasometr/config/SpringWebMVCConfig.class
 su/vistar/tryasometr/model/Path.class
 su/vistar/tryasometr/mapper/SensorDataMapper.class

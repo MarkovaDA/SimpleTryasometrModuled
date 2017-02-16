@@ -53,7 +53,7 @@ public class MainController {
     }
     
     private GeoObjectCollection getCollection(List<Section> sections){
-      return pathService.getCollection(sections);
+      return pathService.getSectionCollection(sections);
     }
 
 }

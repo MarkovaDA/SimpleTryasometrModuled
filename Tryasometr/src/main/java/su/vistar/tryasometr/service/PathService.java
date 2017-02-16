@@ -7,8 +7,10 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import su.vistar.tryasometr.mapper.SensorDataMapper;
+import su.vistar.tryasometr.model.Path;
 import su.vistar.tryasometr.model.Rectangle;
 import su.vistar.tryasometr.model.Section;
+import su.vistar.tryasometr.model.Segment;
 import su.vistar.tryasometr.model.objectmanager.Feature;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
 import su.vistar.tryasometr.model.objectmanager.Geometry;
@@ -24,7 +26,7 @@ public class PathService {
     private final String circleType = "Circle";
     private final String rectType = "Rectangle";
     
-    public final double MAX_DISTANCE = 0.000025;
+    public final double MAX_DISTANCE = 0.001;
     private final String reportStr = "point=[%.8f,%.8f],section_id=%d";
 
     public Integer getAppropriateSections(Double[] point) {
@@ -84,8 +86,45 @@ public class PathService {
         }
         return sectionIds;
     }
-
-    public GeoObjectCollection getCollection(List<Section> sections) {
+    public GeoObjectCollection getBasePointsCollection(List<Path> approximatePaths){
+        GeoObjectCollection collection = new GeoObjectCollection();
+        Random rnd = new Random();
+        String colorPattern = "rgba(%d,%d,%d,1)";
+        Iterator<Path> pathIterator = approximatePaths.iterator();
+        Path currentPath;
+        int segmentIndex;
+        Feature feature;
+        Geometry geometry;
+        String rgbaColor;
+        while (pathIterator.hasNext()) {
+            currentPath = pathIterator.next();
+            Iterator<Segment> segmentIterator = currentPath.getSegments().iterator();
+            Segment nextSegment;
+            segmentIndex = 0;
+            
+            while (segmentIterator.hasNext()) {
+                nextSegment = segmentIterator.next();           
+                rgbaColor = String.format(colorPattern, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+                for(int j=0; j < nextSegment.getPoints().size(); j++){
+                    feature = new Feature();
+                    feature.setId(segmentIndex + j);
+                    geometry = new Geometry();
+                    geometry.setType(circleType);
+                    geometry.getCoordinates().add(new Double[]{nextSegment.getPoints().get(j)[0],
+                        nextSegment.getPoints().get(j)[1]
+                    });
+                    feature.setGeometry(geometry);
+                    feature.getOptions().put("strokeWidth", 2);
+                    feature.getOptions().put("strokeColor", "#000000");
+                    feature.getOptions().put("fillColor", rgbaColor);
+                    collection.getFeatures().add(feature);
+                }
+                ++segmentIndex;
+            }
+        }
+        return collection;
+    }
+    public GeoObjectCollection getSectionCollection(List<Section> sections) {
         GeoObjectCollection collection = new GeoObjectCollection();
         Iterator<Section> iterator = sections.iterator();
         Feature feature;
@@ -163,9 +202,9 @@ public class PathService {
             feature.getOptions().put("strokeWidth", 2);
             feature.getOptions().put("strokeColor", "#000000");
             feature.getOptions().put("opacity", "0.5");
-            System.out.println("feature coordinates");
-            System.out.println(current.getBottomPoint()[0].toString() + " " +  current.getBottomPoint()[1].toString());
-            System.out.println(current.getTopPoint()[0].toString() + " " + current.getTopPoint()[1].toString());
+            //System.out.println("feature coordinates");
+            //System.out.println(current.getBottomPoint()[0].toString() + " " +  current.getBottomPoint()[1].toString());
+            //System.out.println(current.getTopPoint()[0].toString() + " " + current.getTopPoint()[1].toString());
             collection.getFeatures().add(feature);
             counter++;
         }
@@ -175,5 +214,25 @@ public class PathService {
     public double euclideanDistance(Double[] point1, Double[] point2){
         return Math.sqrt((point1[0] - point2[0])*(point1[0] - point2[0]) 
                +  (point1[1] - point2[1])*(point1[1] - point2[1]));
+    }
+    
+    public Rectangle getRectangleByPoints(Double[] prevPoint, Double[] nextPoint){
+        Double[] bottomPoint = new Double[2];
+        Double[] topPoint = new Double[2];
+        bottomPoint[0] = Math.min(prevPoint[0], nextPoint[0]) - MAX_DISTANCE;
+        bottomPoint[1] = Math.min(prevPoint[1], nextPoint[1]) - MAX_DISTANCE;
+        topPoint[0] = Math.max(prevPoint[0], nextPoint[0]) + MAX_DISTANCE;
+        topPoint[1] = Math.max(prevPoint[1], nextPoint[1]) + MAX_DISTANCE;
+        return new Rectangle(bottomPoint, topPoint);
+    }
+    
+    public List<Section> getSectionsIntoRectangle(Double[] prevPoint, Double[] nextPoint){
+        Double[] bottomPoint = new Double[2];
+        Double[] topPoint = new Double[2];
+        bottomPoint[0] = Math.min(prevPoint[0], nextPoint[0]) - MAX_DISTANCE;
+        bottomPoint[1] = Math.min(prevPoint[1], nextPoint[1]) - MAX_DISTANCE;
+        topPoint[0] = Math.max(prevPoint[0], nextPoint[0]) + MAX_DISTANCE;
+        topPoint[1] = Math.max(prevPoint[1], nextPoint[1]) + MAX_DISTANCE;
+        return sensorDataMapper.selectSectionsByBounds(bottomPoint[0], bottomPoint[1], topPoint[0], topPoint[1]);
     }
 }

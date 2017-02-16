@@ -3,6 +3,7 @@
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/ResponseEntity.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/SpringInitializer.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/controller/MainController.java
+/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/BasePointData.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Path.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/Rectangle.java
 /home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/GeoObjectCollection.java

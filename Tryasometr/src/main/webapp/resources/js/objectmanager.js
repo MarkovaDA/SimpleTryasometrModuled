@@ -17,6 +17,7 @@ ymaps.ready(function () {
     }),
     objectManager = new ymaps.ObjectManager();
     rectObjectManager = new ymaps.ObjectManager();
+    basePointsManager = new ymaps.ObjectManager();
     //всплывающая подсказка
     var HintLayout = ymaps.templateLayoutFactory.createClass("<div class='my-hint'>" +
         "<b>Оценка качества</b><br />" +
@@ -128,8 +129,8 @@ ymaps.ready(function () {
                     currentPath.segments.push(currentSegment);
                 }
                 paths.push(currentPath);
+                console.log(paths);
             }
-            //отправляем опорные точки аппроксимации на сервер
             $.ajax({
                     headers: { 
                     'Accept': 'application/json',
@@ -139,7 +140,12 @@ ymaps.ready(function () {
                     'url': 'put_yandex_points',
                     'data': JSON.stringify(paths),
                     'dataType': 'json',
-                    'success': function(data){
+                    'success': function(data){ 
+                        data.features.filter(function(feature){
+                            if (feature.geometry.type === "Circle"){
+                                feature.geometry.coordinates = feature.geometry.coordinates[0];
+                            }
+                        });
                         console.log(data);
                         objectManager.removeAll();
                         objectManager.add(data);
@@ -149,7 +155,7 @@ ymaps.ready(function () {
                         map.geoObjects.add(objectManager);
                     }
             });
-            //аапроксимирующие прямоугольники
+            //аппроксимирующие прямоугольники
             $.ajax({
                 headers: { 
                 'Accept': 'application/json',
@@ -171,11 +177,9 @@ ymaps.ready(function () {
                     map.geoObjects.add(rectObjectManager);
                 }
             });
-            console.log(paths);
         });
         showMarshrutButton.events.add('deselect',function(){
             //map.geoObjects.remove(multiRoute);
-            //из расчета, что у нас две метки и маршруты между ними
             map.geoObjects.splice(2, map.geoObjects.getLength() - 2);
         });
     });
