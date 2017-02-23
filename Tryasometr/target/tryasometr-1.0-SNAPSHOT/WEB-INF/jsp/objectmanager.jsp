@@ -6,8 +6,10 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>ObjectManager test</title>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-        <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+        <script type="text/javascript" src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <script type="text/javascript" src='<c:url value="resources/js/objectmanager.js"/>'></script>
+        <script type="text/javascript" src='<c:url value="resources/js/loader.js"/>'></script>
+        <link rel="stylesheet" href='<c:url value="resources/css/loader.css"/>'></link>
         <style>
             body{
                 font-family: Arial;
@@ -33,6 +35,7 @@
     </head>
     <body>
         <h1>ObjectManager</h1>
+        <div id="loader"></div>
         <div id="map" style="width: 640px; height: 480px;">
         </div>
     </body>

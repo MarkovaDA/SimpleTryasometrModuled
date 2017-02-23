@@ -87,6 +87,7 @@ ymaps.ready(function () {
     }
     //отображаем все секции по нажатию на соответсвующую кнопку
     showSectionsButton.events.add('select', function () {
+        $('#loader').fadeIn(100);
         $.getJSON('object_manager/get_features')
         .done(function (geoJson) {
             console.log("geoJson is ready");
@@ -101,6 +102,7 @@ ymaps.ready(function () {
                 hintLayout: HintLayout
             });
             map.geoObjects.add(objectManager);
+            $('#loader').fadeOut(100);
         });
     });
     //очищаем карту от секций
@@ -109,6 +111,7 @@ ymaps.ready(function () {
     });
     //отображение маршрута между двумя точками
     showMarshrutButton.events.add('select', function() {
+        $('#loader').fadeIn(100);
         ymaps.route([
             //аппроксимировать кртчайший маршрут по секциям
             from.geometry.getCoordinates(),
@@ -131,6 +134,7 @@ ymaps.ready(function () {
                 paths.push(currentPath);
                 console.log(paths);
             }
+            //отображение аппроксимирующих секций
             $.ajax({
                     headers: { 
                     'Accept': 'application/json',
@@ -153,6 +157,7 @@ ymaps.ready(function () {
                             hintLayout: HintLayout
                         });
                         map.geoObjects.add(objectManager);
+                        $('#loader').fadeOut(100);
                     }
             });
             //аппроксимирующие прямоугольники
