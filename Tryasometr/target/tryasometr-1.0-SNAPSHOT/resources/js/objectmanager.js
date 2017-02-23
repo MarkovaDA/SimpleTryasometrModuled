@@ -168,12 +168,11 @@ ymaps.ready(function () {
                 'success': function(data){
                     console.log("drawed features");
                     console.log(data);
-                    //здесь нужны два object-manager
                     rectObjectManager.removeAll();
                     rectObjectManager.add(data);
-                    rectObjectManager.objects.options.set({
+                    /*rectObjectManager.objects.options.set({
                         hintLayout: HintLayout
-                    });
+                    });*/
                     map.geoObjects.add(rectObjectManager);
                 }
             });

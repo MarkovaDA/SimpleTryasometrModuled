@@ -1,16 +1,16 @@
 package su.vistar.tryasometr.service;
 
-import java.util.ArrayList;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import su.vistar.tryasometr.mapper.SensorDataMapper;
-import su.vistar.tryasometr.model.Path;
-import su.vistar.tryasometr.model.Rectangle;
-import su.vistar.tryasometr.model.Section;
-import su.vistar.tryasometr.model.Segment;
+import su.vistar.commons.db.TryasometrWebMapper;
+import su.vistar.commons.model.Path;
+import su.vistar.commons.model.Rectangle;
+import su.vistar.commons.model.Section;
+import su.vistar.commons.model.Segment;
 import su.vistar.tryasometr.model.objectmanager.Feature;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
 import su.vistar.tryasometr.model.objectmanager.Geometry;
@@ -19,73 +19,14 @@ import su.vistar.tryasometr.model.objectmanager.Geometry;
 public class PathService {
 
     @Autowired
-    SensorDataMapper sensorDataMapper;
+    TryasometrWebMapper tryasometrWebMapper;
 
-    private final int count = 50;
     private final String lineType = "LineString";
     private final String circleType = "Circle";
-    private final String rectType = "Rectangle";
-    
-    public final double MAX_DISTANCE = 0.001;
-    private final String reportStr = "point=[%.8f,%.8f],section_id=%d";
+    private final String rectType = "Rectangle";  
+    private final double MAX_DISTANCE = 0.001;
 
-    public Integer getAppropriateSections(Double[] point) {
-        List<Section> portionSection;
-        int from = 0;
-        do {
-            portionSection = sensorDataMapper.selectCountSections(from, count);
-            Iterator<Section> iterator = portionSection.iterator();
-            Section currentSection;
-            double minLat, maxLat, minLon, maxLon;
-            while (iterator.hasNext()) {
-                currentSection = iterator.next();
-                double[] lons = {currentSection.getLat1(), currentSection.getLat2(), currentSection.getLat3(), currentSection.getLat4()};
-                double[] lats = {currentSection.getLon1(), currentSection.getLon2(), currentSection.getLon3(), currentSection.getLon4()};
-                for (int j = 0; j < lons.length - 1; j++) {
-                    minLat = (lats[j] < lats[j + 1]) ? lats[j] : lats[j + 1];
-                    minLon = (lons[j] < lons[j + 1]) ? lons[j] : lons[j + 1];
-                    maxLat = (lats[j] > lats[j + 1]) ? lats[j] : lats[j + 1];
-                    maxLon = (lons[j] > lons[j + 1]) ? lons[j] : lons[j + 1];
-
-                    if ((minLat <= point[1] && point[1] <= maxLat)
-                            && (minLon <= point[0] && point[0] <= maxLon)) {
-                        String output = String.format(reportStr, point[0], point[1], minLat, maxLat, minLon, maxLon);
-                        System.out.println(output);
-                        return currentSection.getSectionID();
-                    }
-                }
-            }
-            from += count;
-        } while (!portionSection.isEmpty());
-        return null;
-    }
-
-    public List<Section> findSectionsWhichPointBelongs(Double[] point) {        
-        List<Section> filteredSections = sensorDataMapper.selectSectionsByBounds(point[0] - MAX_DISTANCE, point[1] - MAX_DISTANCE,
-                point[0] + MAX_DISTANCE, point[1] + MAX_DISTANCE);
-        Iterator<Section> iterator = filteredSections.iterator();
-        Section currentSection;
-        List<Section> sectionIds = new ArrayList<>();
-        double minLat, maxLat, minLon, maxLon;
-        while (iterator.hasNext()) {
-            currentSection = iterator.next();
-            double[] lats = {currentSection.getLat1(), currentSection.getLat2(), currentSection.getLat3(), currentSection.getLat4()};
-            double[] lons = {currentSection.getLon1(), currentSection.getLon2(), currentSection.getLon3(), currentSection.getLon4()};
-            for (int j = 0; j < lons.length - 1; j++) {
-                minLat = (lats[j] < lats[j + 1]) ? lats[j] : lats[j + 1];
-                minLon = (lons[j] < lons[j + 1]) ? lons[j] : lons[j + 1];
-                maxLat = (lats[j] > lats[j + 1]) ? lats[j] : lats[j + 1];
-                maxLon = (lons[j] > lons[j + 1]) ? lons[j] : lons[j + 1];
-                if ((minLat <= point[0] && point[0] <= maxLat)
-                        && (minLon <= point[1] && point[1] <= maxLon)) {
-                    //String output = String.format(reportStr, point[0], point[1], currentSection.getSeсtionID());
-                    //System.out.println(output);
-                    sectionIds.add(currentSection);
-                }
-            }
-        }
-        return sectionIds;
-    }
+    //построение коллекции базовых точек
     public GeoObjectCollection getBasePointsCollection(List<Path> approximatePaths){
         GeoObjectCollection collection = new GeoObjectCollection();
         Random rnd = new Random();
@@ -124,6 +65,8 @@ public class PathService {
         }
         return collection;
     }
+    
+    //построение коллекции секций
     public GeoObjectCollection getSectionCollection(List<Section> sections) {
         GeoObjectCollection collection = new GeoObjectCollection();
         Iterator<Section> iterator = sections.iterator();
@@ -164,8 +107,12 @@ public class PathService {
         }
         return collection;
     }
-    
-    public int  evaluateAzimuth(double lat1, double lat2, double lon1, double lon2){
+        
+    public GeoObjectCollection getAllSectionsCollection(){
+        return getSectionCollection(tryasometrWebMapper.selectAllSections());
+    }
+    //вычисление азимута между двумя точками
+    public int evaluateAzimuth(double lat1, double lat2, double lon1, double lon2){
         double phi1 = lat1 * Math.PI/180;
         double phi2 = lat2 * Math.PI /180;
         double delta = (lon2 - lon1) * Math.PI/180;
@@ -176,6 +123,7 @@ public class PathService {
         return (int)((sigma * 180/Math.PI + 360) % 360);
     }
     
+    //построение коллекции обрамдяющих прямоугольников
     public GeoObjectCollection getRectangleCollection(List<Rectangle> rectangles){
         //координаты углов прямоугольника
         GeoObjectCollection collection = new GeoObjectCollection();
@@ -202,20 +150,19 @@ public class PathService {
             feature.getOptions().put("strokeWidth", 2);
             feature.getOptions().put("strokeColor", "#000000");
             feature.getOptions().put("opacity", "0.5");
-            //System.out.println("feature coordinates");
-            //System.out.println(current.getBottomPoint()[0].toString() + " " +  current.getBottomPoint()[1].toString());
-            //System.out.println(current.getTopPoint()[0].toString() + " " + current.getTopPoint()[1].toString());
             collection.getFeatures().add(feature);
             counter++;
         }
         return collection;
     }
 
+    //рассчет евклидова расстояния
     public double euclideanDistance(Double[] point1, Double[] point2){
         return Math.sqrt((point1[0] - point2[0])*(point1[0] - point2[0]) 
                +  (point1[1] - point2[1])*(point1[1] - point2[1]));
     }
     
+    //получение прямоугольника по опорным точек диагонали
     public Rectangle getRectangleByPoints(Double[] prevPoint, Double[] nextPoint){
         Double[] bottomPoint = new Double[2];
         Double[] topPoint = new Double[2];
@@ -233,6 +180,6 @@ public class PathService {
         bottomPoint[1] = Math.min(prevPoint[1], nextPoint[1]) - MAX_DISTANCE;
         topPoint[0] = Math.max(prevPoint[0], nextPoint[0]) + MAX_DISTANCE;
         topPoint[1] = Math.max(prevPoint[1], nextPoint[1]) + MAX_DISTANCE;
-        return sensorDataMapper.selectSectionsByBounds(bottomPoint[0], bottomPoint[1], topPoint[0], topPoint[1]);
+        return tryasometrWebMapper.selectSectionsByBounds(bottomPoint[0], bottomPoint[1], topPoint[0], topPoint[1]);
     }
 }

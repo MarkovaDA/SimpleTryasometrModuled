@@ -3,11 +3,9 @@ package su.vistar.tryasometr.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import su.vistar.tryasometr.mapper.SensorDataMapper;
-import su.vistar.tryasometr.model.Acceleration;
-import su.vistar.tryasometr.model.Location;
-import su.vistar.tryasometr.model.ResponseEntity;
+import su.vistar.commons.model.Acceleration;
+import su.vistar.commons.model.Location;
+import su.vistar.commons.model.ResponseEntity;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,19 +19,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import su.vistar.tryasometr.model.BasePointData;
-import su.vistar.tryasometr.model.Path;
-import su.vistar.tryasometr.model.Rectangle;
-import su.vistar.tryasometr.model.Section;
-import su.vistar.tryasometr.model.Segment;
+import su.vistar.commons.model.BasePointData;
+import su.vistar.commons.model.Path;
+import su.vistar.commons.model.Rectangle;
+import su.vistar.commons.model.Section;
+import su.vistar.commons.model.Segment;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
 import su.vistar.tryasometr.service.PathService;
+import su.vistar.commons.db.TryasometrAndroidMapper;
 
 @Controller
 public class ApiController {
 
     @Autowired
-    private SensorDataMapper sensorMapper; //сделать отдельный сервис для всех используемых операций
+    private TryasometrAndroidMapper tryasometrMapper; 
 
     @Autowired
     private PathService pathService;
@@ -47,7 +46,7 @@ public class ApiController {
     @PostMapping(value = "/save_location/")
     @ResponseBody
     public ResponseEntity saveLocations(@RequestBody List<Location> list) {
-        sensorMapper.insertListOfLocations(list);
+        tryasometrMapper.insertListOfLocations(list);
         ResponseEntity entity = new ResponseEntity();
         entity.setStatus("OK");
         return entity;
@@ -56,18 +55,12 @@ public class ApiController {
     @PostMapping(value = "/save_acceleration/")
     @ResponseBody
     public ResponseEntity saveAccelerations(@RequestBody List<Acceleration> list) {
-        sensorMapper.insertListOfAcceleration(list);
+        tryasometrMapper.insertListOfAcceleration(list);
         ResponseEntity entity = new ResponseEntity();
         entity.setStatus("OK");
         return entity;
     }
-
-    @GetMapping(value = "/get_sections")
-    @ResponseBody
-    public List<Section> getSections() {
-        return sensorMapper.selectAllSections();
-    }
-
+    
     @PostMapping(value = "put_yandex_points")
     @ResponseBody
     public GeoObjectCollection anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths) {
@@ -173,8 +166,5 @@ public class ApiController {
             i = j;
         }
         return pathService.getRectangleCollection(rectangles);
-    }
-
-
-    
+    }  
 }

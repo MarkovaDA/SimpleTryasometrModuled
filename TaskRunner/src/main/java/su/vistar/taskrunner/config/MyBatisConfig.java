@@ -7,14 +7,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
-@MapperScan("su.vistar.taskrunner.mapper")
+@MapperScan("su.vistar.commons.db")
 public class MyBatisConfig {
     @Bean
     public BasicDataSource dataSource() {
             BasicDataSource dataSource = new BasicDataSource();
             dataSource.setDriverClassName("com.mysql.jdbc.Driver");           
             dataSource.setUsername("dasha");
-            //"jdbc:mysql://vps2.vistar.su:3306"
             dataSource.setUrl("jdbc:mysql://vps1.vistar.su:3306/tryasometr_v2");
             dataSource.setPassword("dasha");
             return dataSource;
@@ -29,6 +28,5 @@ public class MyBatisConfig {
             SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
             sessionFactory.setDataSource(dataSource());         
             return sessionFactory;
-    }
-   
+    }  
 }

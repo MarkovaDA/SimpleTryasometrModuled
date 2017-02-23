@@ -49,5 +49,11 @@
             <version>4.3.4.RELEASE</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>su.vistar</groupId>
+            <artifactId>Commons</artifactId>
+            <version>1.0.1</version>
+            <type>jar</type>
+        </dependency>               
     </dependencies>
 </project>

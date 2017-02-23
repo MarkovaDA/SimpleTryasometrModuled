@@ -6,7 +6,6 @@
     <artifactId>SimpleTryasometrServer</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
     <name>SimpleTryasometr</name>
 
     <repositories>
@@ -67,8 +66,8 @@
     <modules>
         <module>Tryasometr</module>
         <module>TaskRunner</module>
-    <module>task</module>
-  </modules>
+        <module>Commons</module>
+    </modules>
 
     <properties>
         <netbeans.version>RELEASE82</netbeans.version>
