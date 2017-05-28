@@ -61,4 +61,3 @@ ymaps.util.augment(CustomControlClass, ymaps.collection.Item, {
 
 });
 
-

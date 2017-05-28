@@ -8,6 +8,7 @@
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <script type="text/javascript" src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
         <script type="text/javascript" src='<c:url value="resources/js/map_legend.js"/>'></script>
+        <script type="text/javascript" src='<c:url value="resources/js/route_info.js"/>'></script>
         <script type="text/javascript" src='<c:url value="resources/js/simple_routing.js"/>'></script>
         <script type="text/javascript" src='<c:url value="resources/js/loader.js"/>'></script>
         <link rel="stylesheet" href='<c:url value="resources/css/loader.css"/>'></link>
@@ -60,6 +61,13 @@
                 border-radius: 50%;
                 background:darkred;
             }
+            .routeControl{
+                background-color: #fff;
+                padding: 10px;
+                border-radius: 3px;
+                font-size:12px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            }
         </style>
     </head>
     <body>
@@ -88,6 +96,10 @@
                     <td> - очень плохо</td>
                 </tr>
             </table>
+        </div>
+        <div class="routeControl">
+            <span>Наименование маршрута:</span>
+            <span style="border: 1px solid orange;padding: 5px; border-radius:3px;">Оценка</span>
         </div>
     </body>
 </html>

@@ -1,30 +1,28 @@
  ymaps.ready(function () {
  // Создаем собственный класс.
-CustomControlClass = function (options) {
-    CustomControlClass.superclass.constructor.call(this, options);
+RouteControlClass = function (options) {
+    RouteControlClass.superclass.constructor.call(this, options);
     this._$content = null;
     this._geocoderDeferred = null;
 };
 //и наследуем его от collection.Item.
-ymaps.util.augment(CustomControlClass, ymaps.collection.Item, {
+ymaps.util.augment(RouteControlClass, ymaps.collection.Item, {
     onAddToMap: function (map) {
-        CustomControlClass.superclass.onAddToMap.call(this, map);
+        RouteControlClass.superclass.onAddToMap.call(this, map);
         this._lastCenter = null;
         this.getParent().getChildElement(this).then(this._onGetChildElement, this);
     },
-
     onRemoveFromMap: function (oldMap) {
         this._lastCenter = null;
         if (this._$content) {
             this._$content.remove();
             this._mapEventGroup.removeAll();
         }
-        CustomControlClass.superclass.onRemoveFromMap.call(this, oldMap);
+        RouteControlClass.superclass.onRemoveFromMap.call(this, oldMap);
     },
-
     _onGetChildElement: function (parentDomContainer) {
         // Создаем HTML-элемент с текстом.
-        this._$content = $('.customControl').appendTo(parentDomContainer);
+        this._$content = $('.routeControl').appendTo(parentDomContainer);
         this._mapEventGroup = this.getMap().events.group();
         // Запрашиваем данные после изменения положения карты.
         this._mapEventGroup.add('boundschange', this._createRequest, this);
@@ -60,4 +58,6 @@ ymaps.util.augment(CustomControlClass, ymaps.collection.Item, {
 });
 
 });
+
+
 

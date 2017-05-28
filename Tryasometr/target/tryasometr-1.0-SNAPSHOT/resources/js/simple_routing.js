@@ -10,6 +10,7 @@ ymaps.ready(function () {
     });
     //определяем виджет
     var customControl = new CustomControlClass();
+    var routeControl = new RouteControlClass();
     //определяем карту
     var map = new ymaps.Map('map', {
         center: [51.67, 39.18],
@@ -51,6 +52,13 @@ ymaps.ready(function () {
         position: {
             top: 10,
             right: 10
+        }
+    });
+    map.controls.add(routeControl, {
+        float: 'none',
+        position: {
+            bottom: 10,
+            right: '50%'
         }
     });
     var from, to, relocatedFrom = false;
