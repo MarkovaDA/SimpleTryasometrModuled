@@ -7,7 +7,7 @@
         <title>ObjectManager test</title>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
         <script type="text/javascript" src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
-        <script type="text/javascript" src='<c:url value="resources/js/multi_routing.js"/>'></script>
+        <script type="text/javascript" src='<c:url value="resources/js/simple_routing.js"/>'></script>
         <script type="text/javascript" src='<c:url value="resources/js/loader.js"/>'></script>
         <link rel="stylesheet" href='<c:url value="resources/css/loader.css"/>'></link>
         <style>

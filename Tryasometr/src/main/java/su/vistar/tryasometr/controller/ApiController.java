@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,25 +41,7 @@ public class ApiController {
         ModelAndView model = new ModelAndView("index");
         return model;
     }
-
-    @PostMapping(value = "/save_location/")
-    @ResponseBody
-    public ResponseEntity saveLocations(@RequestBody List<Location> list) {
-        tryasometrMapper.insertListOfLocations(list);
-        ResponseEntity entity = new ResponseEntity();
-        entity.setStatus("OK");
-        return entity;
-    }
-
-    @PostMapping(value = "/save_acceleration/")
-    @ResponseBody
-    public ResponseEntity saveAccelerations(@RequestBody List<Acceleration> list) {
-        tryasometrMapper.insertListOfAcceleration(list);
-        ResponseEntity entity = new ResponseEntity();
-        entity.setStatus("OK");
-        return entity;
-    }
-    
+   
     @PostMapping(value = "put_yandex_points")
     @ResponseBody
     public GeoObjectCollection anylizeWayByYandexPoints(@RequestBody List<Path> approximatePaths) {

@@ -1,4 +1,5 @@
 ymaps.ready(function () {
+    //определяем две кнопки интерфейса
     var showSectionsButton = new ymaps.control.Button({
         data: {content: "Отобразить секции"},
         options: {selectOnClick: true}
@@ -7,6 +8,7 @@ ymaps.ready(function () {
         data: {content: "Получить маршруты"},
         options: {selectOnClick: true}
     });
+    //определяем карту
     var map = new ymaps.Map('map', {
         center: [51.67, 39.18],
         zoom: 15,
@@ -14,13 +16,13 @@ ymaps.ready(function () {
     }, {
         buttonMaxWidth: 300
     }),
-            objectManager = new ymaps.ObjectManager();
-    rectObjectManager = new ymaps.ObjectManager();
-    basePointsManager = new ymaps.ObjectManager();
+    objectManager = new ymaps.ObjectManager();//структура для рисования секций 
+    rectObjectManager = new ymaps.ObjectManager(); //структура для прорисовки прямоугольников аппроксимирующих
+    basePointsManager = new ymaps.ObjectManager();//структура для отрисовки базовых точек
     //всплывающая подсказка
     var HintLayout = ymaps.templateLayoutFactory.createClass("<div class='my-hint'>" +
-            "<b>Оценка качества</b><br />" +
-            "{{properties.sectionId}}" +
+            "<b>Оценка степени неровности</b><br />" +
+            "{{properties.sectionValue}}" +
             "{{properties.rectLength}}" +
             "</div>", {
                 getShape: function () {
@@ -39,7 +41,8 @@ ymaps.ready(function () {
                 }
             });
 
-    var from, to, multiRoute, relocatedFrom = false;
+    var from, to, relocatedFrom = false;
+    //установка точек на карту
     map.events.add('click', function (e) {
         var coords = e.get('coords');
         if (from && to) {
@@ -68,7 +71,7 @@ ymaps.ready(function () {
         }
     });
     objectManager.objects.events.add(['mouseenter', 'mouseleave'], onSectionHover);
-
+    //декоративное изменение прозрачности секции при наведении мыши
     function onSectionHover(e) {
         var objectId = e.get('objectId');
         if (e.get('type') === 'mouseenter') {
@@ -109,77 +112,80 @@ ymaps.ready(function () {
     showMarshrutButton.events.add('select', function () {
         //$('#loader').fadeIn(100);
         ymaps.route([
-            //аппроксимировать кртчайший маршрут по секциям
+            //передаем конечную и начальную точку маршрута
             from.geometry.getCoordinates(),
             to.geometry.getCoordinates()
         ])
-                .then(function (route) {
-                    map.geoObjects.add(route);
-                    var paths = new Array();
-                    for (var i = 0; i < route.getPaths().getLength(); i++) {
-                        var currentPath = new Object();
-                        currentPath.id = i;
-                        currentPath.segments = new Array();
-                        var way = route.getPaths().get(i);
-                        var segments = way.getSegments();
-                        for (var j = 0; j < segments.length; j++) {
-                            var currentSegment = new Object();
-                            var coordinates = segments[j].getCoordinates();
-                            currentSegment.points = coordinates;
-                            currentPath.segments.push(currentSegment);
-                        }
-                        paths.push(currentPath);
-                        console.log(paths);
+        .then(function (route) {
+                map.geoObjects.add(route);
+                var paths = new Array();
+                //собираем маршрутный объект для отправки на сервер
+                for (var i = 0; i < route.getPaths().getLength(); i++) {
+                    var currentPath = new Object();
+                    currentPath.id = i;
+                    currentPath.segments = new Array();
+                    var way = route.getPaths().get(i);
+                    var segments = way.getSegments();
+                    for (var j = 0; j < segments.length; j++) {
+                        var currentSegment = new Object();
+                        var coordinates = segments[j].getCoordinates();
+                        currentSegment.points = coordinates;
+                        currentPath.segments.push(currentSegment);
                     }
-                    //отображение аппроксимирующих секций
-                    $.ajax({
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        'type': 'POST',
-                        'url': 'put_yandex_points',
-                        'data': JSON.stringify(paths),
-                        'dataType': 'json',
-                        'success': function (data) {
-                            data.features.filter(function (feature) {
-                                if (feature.geometry.type === "Circle") {
-                                    feature.geometry.coordinates = feature.geometry.coordinates[0];
-                                }
-                            });
-                            console.log(data);
-                            objectManager.removeAll();
-                            objectManager.add(data);
-                            objectManager.objects.options.set({
-                                hintLayout: HintLayout
-                            });
-                            map.geoObjects.add(objectManager);
-                            $('#loader').fadeOut(100);
-                        }
-                    });
-                    //аппроксимирующие прямоугольники
-                    $.ajax({
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        'type': 'POST',
-                        'url': 'draw_rectangles',
-                        'data': JSON.stringify(paths),
-                        'dataType': 'json',
-                        'success': function (data) {
-                            console.log("drawed features");
-                            console.log(data);
-                            rectObjectManager.removeAll();
-                            rectObjectManager.add(data);
-                            map.geoObjects.add(rectObjectManager);
-                        }
-                    });
+                    paths.push(currentPath);
+                    console.log(paths);
+                }
+                //отображение аппроксимирующих секций
+                $.ajax({
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    'type': 'POST',
+                    'url': 'put_yandex_points',
+                    'data': JSON.stringify(paths),
+                    'dataType': 'json',
+                    'success': function (data) {
+                        data.features.filter(function (feature) {
+                            if (feature.geometry.type === "Circle") {
+                                feature.geometry.coordinates = feature.geometry.coordinates[0];
+                            }
+                        });
+                        console.log(data);
+                        console.log('drawed sections');
+                        objectManager.removeAll();
+                        objectManager.add(data);
+                        objectManager.objects.options.set({
+                            hintLayout: HintLayout
+                        });
+                        map.geoObjects.add(objectManager);
+                        $('#loader').fadeOut(100);
+                    }
                 });
-        showMarshrutButton.events.add('deselect', function () {
+                //аппроксимирующие прямоугольники
+                /*.ajax({
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    'type': 'POST',
+                    'url': 'draw_rectangles',
+                    'data': JSON.stringify(paths),
+                    'dataType': 'json',
+                    'success': function (data) {
+                        console.log("drawed features");
+                        console.log(data);
+                        rectObjectManager.removeAll();
+                        rectObjectManager.add(data);
+                        map.geoObjects.add(rectObjectManager);
+                    }
+                });*/
+            });      
+    });
+    //удаляем маркеры, установленные на карту
+    showMarshrutButton.events.add('deselect', function () {
             //map.geoObjects.remove(multiRoute);
-            map.geoObjects.splice(2, map.geoObjects.getLength() - 2);
-        });
+        map.geoObjects.splice(2, map.geoObjects.getLength() - 2);
     });
 });
 

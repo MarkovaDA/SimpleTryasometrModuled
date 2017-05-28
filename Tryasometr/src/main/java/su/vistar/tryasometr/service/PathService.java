@@ -20,12 +20,19 @@ public class PathService {
 
     @Autowired
     TryasometrWebMapper tryasometrWebMapper;
-
+    //сбоку еще добавить менюшку с цветами
     private final String lineType = "LineString";
     private final String circleType = "Circle";
     private final String rectType = "Rectangle";  
     private final double MAX_DISTANCE = 0.001;
-
+    
+    //зеленый, желтый, красный, бордовый
+    private final String[] fixedColorPatterns = 
+    {   "rgba(32,232,14,1)",
+        "rgba(254,254,34,1)", 
+        "rgba(255,0,0,1)", 
+        "rgba(165,32,25,1)"
+    };
     //построение коллекции базовых точек
     public GeoObjectCollection getBasePointsCollection(List<Path> approximatePaths){
         GeoObjectCollection collection = new GeoObjectCollection();
@@ -41,11 +48,11 @@ public class PathService {
             currentPath = pathIterator.next();
             Iterator<Segment> segmentIterator = currentPath.getSegments().iterator();
             Segment nextSegment;
-            segmentIndex = 0;
-            
+            segmentIndex = 0;            
             while (segmentIterator.hasNext()) {
-                nextSegment = segmentIterator.next();           
-                rgbaColor = String.format(colorPattern, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+                nextSegment = segmentIterator.next();
+                //цвет подбирать в зависимости от сегмента
+                rgbaColor = String.format(colorPattern, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));                        
                 for(int j=0; j < nextSegment.getPoints().size(); j++){
                     feature = new Feature();
                     feature.setId(segmentIndex + j);
@@ -75,9 +82,11 @@ public class PathService {
         Section current;
         int counter = 0;
         Random rnd = new Random();
+        float valueSection;       
         String colorPattern = "rgba(%d,%d,%d,1)";
-        String rgbaColor;
+        //String rgbaColor;
         while (iterator.hasNext()) {
+            valueSection = rnd.nextFloat() * 4;//оценка по 4 балльной шкале
             current = iterator.next();
             feature = new Feature();
             feature.setId(counter++);
@@ -89,9 +98,12 @@ public class PathService {
             geometry.getCoordinates().add(new Double[]{current.getLat4(), current.getLon4()});
             feature.setGeometry(geometry);
             feature.getProperties().put("sectionId", current.getSectionID());
+            //моделируем оценку секции - случайной число от 1 до 4 по степени убывания качества
+            feature.getProperties().put("sectionValue", valueSection);
             feature.getOptions().put("strokeWidth", 5);
-            rgbaColor = String.format(colorPattern, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            feature.getOptions().put("strokeColor", rgbaColor);
+            //рандомной сгенерированный цвет
+            //rgbaColor = String.format(colorPattern, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            feature.getOptions().put("strokeColor", fixedColorPatterns[(int)(valueSection)]);
             collection.getFeatures().add(feature);
             //кругляк обрамляющий
             feature = new Feature();
@@ -123,7 +135,7 @@ public class PathService {
         return (int)((sigma * 180/Math.PI + 360) % 360);
     }
     
-    //построение коллекции обрамдяющих прямоугольников
+    //построение коллекции обрамляющих прямоугольников
     public GeoObjectCollection getRectangleCollection(List<Rectangle> rectangles){
         //координаты углов прямоугольника
         GeoObjectCollection collection = new GeoObjectCollection();

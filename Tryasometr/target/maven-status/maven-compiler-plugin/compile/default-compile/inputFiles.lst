@@ -1,9 +1,9 @@
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/Geometry.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/service/PathService.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/SpringInitializer.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/controller/ApiController.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/controller/MainController.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/SpringWebMVCConfig.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/config/MyBatisConfig.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/GeoObjectCollection.java
-/home/darya/NetBeansProjects/SimpleTryasometr/Tryasometr/src/main/java/su/vistar/tryasometr/model/objectmanager/Feature.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\config\MyBatisConfig.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\service\PathService.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\model\objectmanager\Feature.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\controller\MainController.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\controller\ApiController.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\config\SpringWebMVCConfig.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\config\SpringInitializer.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\model\objectmanager\GeoObjectCollection.java
+C:\Users\Darya\Documents\NetBeans Projects\SimpleTryasometrModuled\Tryasometr\src\main\java\su\vistar\tryasometr\model\objectmanager\Geometry.java
