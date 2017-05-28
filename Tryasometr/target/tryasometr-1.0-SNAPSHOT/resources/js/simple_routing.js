@@ -8,14 +8,17 @@ ymaps.ready(function () {
         data: {content: "Получить маршруты"},
         options: {selectOnClick: true}
     });
+    //определяем виджет
+    var customControl = new CustomControlClass();
     //определяем карту
     var map = new ymaps.Map('map', {
         center: [51.67, 39.18],
         zoom: 15,
-        controls: [showSectionsButton, showMarshrutButton, 'zoomControl', 'fullscreenControl']
+        controls: [showSectionsButton, showMarshrutButton, 'zoomControl']
     }, {
         buttonMaxWidth: 300
     }),
+    
     objectManager = new ymaps.ObjectManager();//структура для рисования секций 
     rectObjectManager = new ymaps.ObjectManager(); //структура для прорисовки прямоугольников аппроксимирующих
     basePointsManager = new ymaps.ObjectManager();//структура для отрисовки базовых точек
@@ -40,7 +43,16 @@ ymaps.ready(function () {
                     return result;
                 }
             });
-
+    //ручная настройка элемента fullscreencontrol
+    map.controls.add(new ymaps.control.FullscreenControl({options: { position: { right: 10, bottom: 25 }}}));    
+    //установка пользовательского виджета легенды карты
+    map.controls.add(customControl, {
+        float: 'none',
+        position: {
+            top: 10,
+            right: 10
+        }
+    });
     var from, to, relocatedFrom = false;
     //установка точек на карту
     map.events.add('click', function (e) {
