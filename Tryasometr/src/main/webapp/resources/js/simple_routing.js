@@ -57,8 +57,8 @@ ymaps.ready(function () {
     map.controls.add(routeControl, {
         float: 'none',
         position: {
-            bottom: 10,
-            right: '50%'
+            left: 10,
+            bottom: 40
         }
     });
     var from, to, relocatedFrom = false;
@@ -126,10 +126,15 @@ ymaps.ready(function () {
     });
     //очищаем карту от секций
     showSectionsButton.events.add('deselect', function () {
+        $('.routeControl').fadeOut(100);
         map.geoObjects.removeAll();
     });
     //отображение маршрута между двумя точками
     showMarshrutButton.events.add('select', function () {
+        $('.routeControl').fadeIn(100);
+        //GEOCODER
+        getPlaceAddress(from.geometry.getCoordinates());
+        getPlaceAddress(to.geometry.getCoordinates());
         //$('#loader').fadeIn(100);
         ymaps.route([
             //передаем конечную и начальную точку маршрута
@@ -153,7 +158,6 @@ ymaps.ready(function () {
                         currentPath.segments.push(currentSegment);
                     }
                     paths.push(currentPath);
-                    console.log(paths);
                 }
                 //отображение аппроксимирующих секций
                 $.ajax({
@@ -166,13 +170,21 @@ ymaps.ready(function () {
                     'data': JSON.stringify(paths),
                     'dataType': 'json',
                     'success': function (data) {
+                        //console.log(data);
+                        var routeValue = 0.0;//оценка маршрута
+                        var count = 0;
                         data.features.filter(function (feature) {
                             if (feature.geometry.type === "Circle") {
                                 feature.geometry.coordinates = feature.geometry.coordinates[0];
                             }
+                            else {
+                                routeValue+=feature.properties.sectionValue;
+                                count++;
+                            }
                         });
-                        console.log(data);
-                        console.log('drawed sections');
+                        routeValue /= count;
+                        console.log(routeValue);
+                        $('#route_value').text(routeValue.toFixed(3));
                         objectManager.removeAll();
                         objectManager.add(data);
                         objectManager.objects.options.set({
@@ -181,25 +193,8 @@ ymaps.ready(function () {
                         map.geoObjects.add(objectManager);
                         $('#loader').fadeOut(100);
                     }
-                });
-                //аппроксимирующие прямоугольники
-                /*.ajax({
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    'type': 'POST',
-                    'url': 'draw_rectangles',
-                    'data': JSON.stringify(paths),
-                    'dataType': 'json',
-                    'success': function (data) {
-                        console.log("drawed features");
-                        console.log(data);
-                        rectObjectManager.removeAll();
-                        rectObjectManager.add(data);
-                        map.geoObjects.add(rectObjectManager);
-                    }
-                });*/
+                }); 
+                //вывести на форму показатель оценки маршрута
             });      
     });
     //удаляем маркеры, установленные на карту
@@ -207,6 +202,28 @@ ymaps.ready(function () {
             //map.geoObjects.remove(multiRoute);
         map.geoObjects.splice(2, map.geoObjects.getLength() - 2);
     });
+    //получение адреса по координатам
+    function getPlaceAddress(from, to){
+        var mapGeocoder = ymaps.geocode(from, {kind: 'street'});
+        $('#route_name').empty();
+        mapGeocoder.then(function(res) {
+            // Задаем изображение для иконок меток.
+            var fromGeoObject = res.geoObjects.get(0);
+            $('#route_name').append(fromGeoObject.getAddressLine() + " - ");
+        }, function (err) {
+            // Если геокодирование не удалось, сообщаем об ошибке.
+            console.log(err.message);
+        });
+        mapGeocoder = ymaps.geocode(to, {kind: 'street'});
+        mapGeocoder.then(function(res) {
+            // Задаем изображение для иконок меток.
+            var toGeoObject = res.geoObjects.get(0);
+            $('#route_name').append(toGeoObject.getAddressLine());
+        }, function (err) {
+            // Если геокодирование не удалось, сообщаем об ошибке.
+            console.log(err.message);
+        });
+    }
 });
 
 

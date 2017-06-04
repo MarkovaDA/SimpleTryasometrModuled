@@ -97,9 +97,9 @@
                 </tr>
             </table>
         </div>
-        <div class="routeControl">
-            <span>Наименование маршрута:</span>
-            <span style="border: 1px solid orange;padding: 5px; border-radius:3px;">Оценка</span>
+        <div class="routeControl" style="display:none !important;">
+            <span id="route_name"></span>
+            <span id="route_value" style="border: 1px solid orange;padding: 5px; border-radius:3px;">Оценка</span>
         </div>
     </body>
 </html>

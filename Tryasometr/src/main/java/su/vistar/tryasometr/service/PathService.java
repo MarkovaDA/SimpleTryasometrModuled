@@ -83,8 +83,6 @@ public class PathService {
         int counter = 0;
         Random rnd = new Random();
         float valueSection;       
-        String colorPattern = "rgba(%d,%d,%d,1)";
-        //String rgbaColor;
         while (iterator.hasNext()) {
             valueSection = rnd.nextFloat() * 4;//оценка по 4 балльной шкале
             current = iterator.next();
@@ -174,7 +172,7 @@ public class PathService {
                +  (point1[1] - point2[1])*(point1[1] - point2[1]));
     }
     
-    //получение прямоугольника по опорным точек диагонали
+    //получение прямоугольника по опорным точкам диагонали
     public Rectangle getRectangleByPoints(Double[] prevPoint, Double[] nextPoint){
         Double[] bottomPoint = new Double[2];
         Double[] topPoint = new Double[2];
@@ -185,6 +183,7 @@ public class PathService {
         return new Rectangle(bottomPoint, topPoint);
     }
     
+    //получение оценки секции
     public List<Section> getSectionsIntoRectangle(Double[] prevPoint, Double[] nextPoint){
         Double[] bottomPoint = new Double[2];
         Double[] topPoint = new Double[2];
