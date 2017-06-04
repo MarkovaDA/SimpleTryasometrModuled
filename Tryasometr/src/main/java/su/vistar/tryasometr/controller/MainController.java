@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import su.vistar.tryasometr.model.objectmanager.GeoObjectCollection;
-import su.vistar.tryasometr.service.PathService;
+import su.vistar.tryasometr.service.GeoObjectService;
 
 @Controller
 public class MainController {
 
     @Autowired
-    private PathService pathService;
+    private GeoObjectService pathService;
     
     @GetMapping(value = "/object_manager")
     public ModelAndView objectmanagerPage(ModelMap map) {

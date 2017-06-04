@@ -1,7 +1,9 @@
 
 package su.vistar.commons.model;
 
-
+/*
+*  Модель данных - секция
+*/
 public class Section {
     private Integer sectionID;
     private Double lat1;

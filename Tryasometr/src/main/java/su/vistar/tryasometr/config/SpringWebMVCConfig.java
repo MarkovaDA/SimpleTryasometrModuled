@@ -10,7 +10,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.JstlView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
-import su.vistar.tryasometr.service.PathService;
+import su.vistar.tryasometr.service.GeoObjectService;
+import su.vistar.tryasometr.service.RouteService;
 
 @Configuration
 @EnableWebMvc
@@ -27,8 +28,13 @@ public class SpringWebMVCConfig extends WebMvcConfigurerAdapter {
     }
     
     @Bean
-    public PathService pathService(){
-        return new PathService();
+    public GeoObjectService pathService(){
+        return new GeoObjectService();
+    }
+    
+    @Bean
+    public RouteService routeService(){
+        return new RouteService();
     }
     
     @Override

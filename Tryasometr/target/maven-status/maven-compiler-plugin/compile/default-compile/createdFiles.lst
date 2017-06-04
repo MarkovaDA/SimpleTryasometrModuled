@@ -1,9 +1,10 @@
-su\vistar\tryasometr\service\PathService.class
-su\vistar\tryasometr\model\objectmanager\Geometry.class
-su\vistar\tryasometr\model\objectmanager\GeoObjectCollection.class
 su\vistar\tryasometr\config\MyBatisConfig.class
 su\vistar\tryasometr\model\objectmanager\Feature.class
+su\vistar\tryasometr\service\GeoObjectService.class
+su\vistar\tryasometr\model\objectmanager\Geometry.class
+su\vistar\tryasometr\service\RouteService.class
 su\vistar\tryasometr\config\SpringInitializer.class
 su\vistar\tryasometr\controller\MainController.class
 su\vistar\tryasometr\controller\ApiController.class
+su\vistar\tryasometr\model\objectmanager\GeoObjectCollection.class
 su\vistar\tryasometr\config\SpringWebMVCConfig.class
